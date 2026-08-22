@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import BentoGrid from '../components/BentoGrid.astro';
+import ChatDrawer from '../components/ChatDrawer.astro';
+
+import { getEntry } from 'astro:content';
+
+const resumeData = await getEntry('resume', 'me');
+const data = resumeData!.data;
+---
+
+<Layout title={`${data.basics.name} - ${data.basics.title}`}>
+  <Navbar name={data.basics.name} />
+
+  <main class="container mx-auto px-4 max-w-6xl">
+    <Hero
+      name={data.basics.name}
+      title={data.basics.title}
+      shortBio={data.basics.shortBio}
+      links={data.basics.links}
+    />
+
+    <BentoGrid
+      skills={data.skills}
+      experience={data.experience}
+      projects={data.projects}
+    />
+  </main>
+
+  <ChatDrawer />
+</Layout>

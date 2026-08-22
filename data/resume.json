@@ -1,0 +1,53 @@
+{
+  "me": {
+    "basics": {
+      "name": "Jane Doe",
+      "title": "Full Stack .NET Developer",
+      "shortBio": "Building high-performance web applications with C#, modern web tools, and cloud-native architecture.",
+      "links": {
+        "github": "https://github.com",
+        "linkedin": "https://linkedin.com",
+        "email": "mailto:hello@example.com"
+      }
+    },
+    "skills": {
+      "backend": ["C#", ".NET 8", "Azure Functions", "SQL / Cosmos DB", "REST APIs"],
+      "frontend": ["Astro", "Tailwind CSS", "TypeScript", "HTML5 / CSS3"],
+      "devops": ["Azure Static Web Apps", "GitHub Actions", "Git", "Docker"]
+    },
+    "experience": [
+      {
+        "company": "Tech Corp Global",
+        "role": "Senior .NET Developer",
+        "period": "2022 - Present",
+        "highlights": [
+          "Architected serverless microservices handling 1M+ monthly requests.",
+          "Reduced cloud infrastructure costs by 40% via serverless migration."
+        ]
+      },
+      {
+        "company": "Digital Solutions Inc.",
+        "role": "Software Engineer",
+        "period": "2020 - 2022",
+        "highlights": [
+          "Engineered RESTful APIs using ASP.NET Core and Entity Framework.",
+          "Built responsive client portals with modern frontend frameworks."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "title": "Serverless AI Resume Hub",
+        "description": "High-performance personal web app and Linktree alternative built with Astro and C# Azure Functions.",
+        "tags": ["Astro", "C#", "Azure", "Gemini AI"],
+        "link": "https://github.com"
+      },
+      {
+        "title": "Cloud Inventory Engine",
+        "description": "Distributed microservice for real-time inventory tracking with .NET and Azure Cosmos DB.",
+        "tags": [".NET 8", "Azure", "Cosmos DB"],
+        "link": "https://github.com"
+      }
+    ]
+  }
+}
