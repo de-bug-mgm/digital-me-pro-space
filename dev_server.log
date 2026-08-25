@@ -1,0 +1,31 @@
+
+> digital-me-pro-space@0.0.1 dev
+> astro dev
+
+19:51:25 [types] Generated 1ms
+19:51:25 [vite] Re-optimizing dependencies because vite config has changed
+
+ astro  v5.0.0 ready in 498 ms
+
+┃ Local    http://localhost:4321/
+┃ Network  use --host to expose
+
+19:51:25 watching for file changes...
+The collection "resume" does not exist. Please ensure it is defined in your content config.
+The collection "resume" does not exist. Please ensure it is defined in your content config.
+19:51:56 [ERROR] Cannot read properties of undefined (reading 'data')
+  Stack trace:
+    at /app/src/pages/index.astro:14:78
+    [...] See full stack trace in the browser, or rerun with --verbose.
+The collection "resume" does not exist. Please ensure it is defined in your content config.
+19:54:07 [200] / 105ms
+The collection "resume" does not exist. Please ensure it is defined in your content config.
+19:54:34 [200] / 8ms
+19:55:51 [watch] src/pages/index.astro
+19:55:51 [watch] src/pages/index.astro
+19:56:57 [watch] src/pages/index.astro
+19:56:57 [watch] src/pages/index.astro
+The collection "resume" does not exist. Please ensure it is defined in your content config.
+19:58:11 [200] / 113ms
+The collection "resume" does not exist. Please ensure it is defined in your content config.
+19:58:44 [200] / 13ms

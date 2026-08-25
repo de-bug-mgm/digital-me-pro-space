@@ -1,0 +1,234 @@
+---
+---
+
+<!-- Floating Chat Button -->
+<button id="chat-toggle" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-brand-600 to-brand-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:shadow-brand-500/50 transition-all z-50">
+    <i id="chat-icon-open" class="ph-fill ph-chat-teardrop-dots text-3xl"></i>
+    <i id="chat-icon-closed" class="ph-bold ph-x text-2xl hidden"></i>
+    <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-slate-900 rounded-full animate-pulse"></span>
+</button>
+
+<!-- Glassmorphism Chatbot UI -->
+<div id="chat-panel" class="fixed bottom-24 right-6 w-[380px] max-w-[calc(100vw-3rem)] h-[600px] max-h-[75vh] glass-panel rounded-2xl flex flex-col z-50 opacity-0 pointer-events-none translate-y-8 transition-all duration-400 ease-out overflow-hidden">
+
+    <!-- Chat Header -->
+    <div class="px-6 py-5 bg-gradient-to-r from-brand-600 to-brand-500 flex items-center justify-between shadow-md relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="relative">
+                <div class="w-12 h-12 rounded-full border-2 border-white/30 bg-white/20 p-1 flex items-center justify-center backdrop-blur-sm">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=transparent" alt="Alex AI Avatar" class="w-full h-full rounded-full object-cover bg-brand-700"/>
+                </div>
+                <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-brand-500 rounded-full"></div>
+            </div>
+            <div>
+                <h3 class="font-bold text-white text-lg leading-tight">Alex (AI)</h3>
+                <p class="text-brand-100 text-xs font-medium flex items-center gap-1">
+                    <i class="ph-fill ph-lightning text-yellow-300"></i> Powered by Gemini
+                </p>
+            </div>
+        </div>
+        <button onclick="toggleChat()" class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors relative z-10" aria-label="Close Chat">
+            <i class="ph-bold ph-caret-down text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Suggested Prompts -->
+    <div class="px-4 py-3 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 flex gap-2 overflow-x-auto hide-scrollbar whitespace-nowrap">
+        <button class="suggested-prompt px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 rounded-full hover:border-brand-400 hover:text-brand-500 transition-colors shadow-sm">What is your management style?</button>
+        <button class="suggested-prompt px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 rounded-full hover:border-brand-400 hover:text-brand-500 transition-colors shadow-sm">Tell me about EcoTrack.</button>
+    </div>
+
+    <!-- Chat History -->
+    <div id="chat-history" class="flex-1 overflow-y-auto p-5 bg-slate-50/30 dark:bg-slate-950/30 space-y-2">
+        <!-- Initial Greeting -->
+        <div class="flex items-start gap-3 mb-5">
+            <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex-shrink-0 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 mt-0.5 shadow-sm">
+                <i class="ph-fill ph-sparkle text-sm"></i>
+            </div>
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-slate-700 dark:text-slate-300 max-w-[85%] leading-relaxed shadow-sm">
+                Hi! I'm an AI assistant trained on Alex's portfolio. Want to know about his experience leading teams or his tech stack?
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Input Area -->
+    <div class="p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-t border-slate-200 dark:border-slate-800">
+        <div class="relative flex items-center">
+            <input type="text" id="chat-input" placeholder="Ask a question..." class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-full pl-5 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow placeholder-slate-400 dark:placeholder-slate-500 shadow-inner" autocomplete="off" />
+            <button id="chat-send" class="absolute right-1.5 w-9 h-9 flex items-center justify-center bg-brand-500 text-white rounded-full hover:bg-brand-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                <i class="ph-bold ph-paper-plane-right"></i>
+            </button>
+        </div>
+        <div class="text-center mt-2">
+            <span class="text-[10px] text-slate-400 font-medium">AI can make mistakes. Verify important info.</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Glassmorphism Chatbot UI Logic ---
+    const chatToggle = document.getElementById('chat-toggle');
+    const chatPanel = document.getElementById('chat-panel');
+    const chatIconOpen = document.getElementById('chat-icon-open');
+    const chatIconClosed = document.getElementById('chat-icon-closed');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send');
+    const chatHistoryContainer = document.getElementById('chat-history');
+    const suggestedPrompts = document.querySelectorAll('.suggested-prompt');
+
+    let isChatOpen = false;
+
+    (window as any).toggleChat = toggleChat;
+    function toggleChat() {
+        isChatOpen = !isChatOpen;
+        if (isChatOpen) {
+            chatPanel?.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-8');
+            chatPanel?.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+            chatIconOpen?.classList.add('hidden');
+            chatIconClosed?.classList.remove('hidden');
+            setTimeout(() => chatInput?.focus(), 300);
+        } else {
+            chatPanel?.classList.add('opacity-0', 'pointer-events-none', 'translate-y-8');
+            chatPanel?.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+            chatIconOpen?.classList.remove('hidden');
+            chatIconClosed?.classList.add('hidden');
+        }
+    }
+
+    chatToggle?.addEventListener('click', toggleChat);
+
+    // --- Backend API Integration Logic ---
+    let conversationHistory: any[] = [];
+    const apiUrl = `/api/chat`; // Updated to point to the local C# Azure Function
+
+    function appendUserMessage(text: string) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'flex items-end justify-end mb-5';
+        msgDiv.innerHTML = `
+            <div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm max-w-[85%] leading-relaxed shadow-md font-medium">
+                ${escapeHTML(text)}
+            </div>
+        `;
+        chatHistoryContainer?.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    function appendBotMessage(text: string) {
+        removeTypingIndicator();
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'flex items-start gap-3 mb-5';
+        let formattedText = escapeHTML(text).replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>');
+
+        msgDiv.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex-shrink-0 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 mt-0.5 shadow-sm">
+                <i class="ph-fill ph-sparkle text-sm"></i>
+            </div>
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-slate-700 dark:text-slate-300 max-w-[85%] leading-relaxed shadow-sm">
+                ${formattedText}
+            </div>
+        `;
+        chatHistoryContainer?.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+        const msgDiv = document.createElement('div');
+        msgDiv.id = 'typing-indicator';
+        msgDiv.className = 'flex items-start gap-3 mb-5';
+        msgDiv.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex-shrink-0 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 mt-0.5">
+                <i class="ph-fill ph-sparkle text-sm"></i>
+            </div>
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-4 py-3 text-sm max-w-[85%] flex items-center gap-1.5 shadow-sm">
+                <div class="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full typing-dot"></div>
+                <div class="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full typing-dot"></div>
+                <div class="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full typing-dot"></div>
+            </div>
+        `;
+        chatHistoryContainer?.appendChild(msgDiv);
+        scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) indicator.remove();
+    }
+
+    function scrollToBottom() {
+        if (chatHistoryContainer) chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
+    }
+
+    function escapeHTML(str: string) {
+        return str.replace(/[&<>'"]/g,
+            (tag: string) => (({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'} as Record<string, string>)[tag] || tag)
+        );
+    }
+
+    async function processMessage(text: string) {
+        if (!text.trim()) return;
+
+        appendUserMessage(text);
+        if (chatInput) (chatInput as HTMLInputElement).value = '';
+        if (chatSendBtn) (chatSendBtn as HTMLButtonElement).disabled = true;
+
+        showTypingIndicator();
+
+        try {
+            // New Schema Expected by Backend
+            const payload = {
+                message: text,
+                history: conversationHistory
+            };
+
+            // Backend is expected to be running at localhost:7071 for dev,
+            // but in production it'll be /api/chat. We'll use absolute if dev, relative if prod.
+            let fetchUrl = apiUrl;
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                if (window.location.port !== '7071') {
+                    // Astro dev server port. Function app is usually on 7071
+                    fetchUrl = 'http://localhost:7071/api/chat';
+                }
+            }
+
+            const response = await fetch(fetchUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const result = await response.json();
+
+            if (result.Reply) { // Depending on ChatResponse model
+                appendBotMessage(result.Reply);
+                // Update history
+                conversationHistory.push({ role: "user", text: text });
+                conversationHistory.push({ role: "model", text: result.Reply });
+            } else if (result.reply) {
+                appendBotMessage(result.reply);
+                conversationHistory.push({ role: "user", text: text });
+                conversationHistory.push({ role: "model", text: result.reply });
+            }
+             else {
+                throw new Error("Unexpected response structure");
+            }
+        } catch (error) {
+            console.error("AI Error:", error);
+            appendBotMessage("Connection interrupted. Please try again or reach out directly.");
+        } finally {
+            if (chatSendBtn) (chatSendBtn as HTMLButtonElement).disabled = false;
+            chatInput?.focus();
+        }
+    }
+
+    chatSendBtn?.addEventListener('click', () => processMessage((chatInput as HTMLInputElement)?.value));
+    chatInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') processMessage((chatInput as HTMLInputElement)?.value);
+    });
+
+    suggestedPrompts.forEach(btn => {
+        btn.addEventListener('click', () => processMessage(btn.textContent?.trim() || ''));
+    });
+</script>

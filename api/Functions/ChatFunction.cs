@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Api.Models;
+using System.Collections.Generic;
 
 namespace Api.Functions;
 
@@ -54,6 +55,30 @@ public class ChatFunction
                 }
             }
 
+            // Extract Name and Title dynamically from the resume JSON
+            string personName = "the owner of this portfolio";
+            try
+            {
+                if (!string.IsNullOrEmpty(resumeJson))
+                {
+                    using JsonDocument doc = JsonDocument.Parse(resumeJson);
+                    if (doc.RootElement.TryGetProperty("me", out JsonElement meElement))
+                    {
+                        if (meElement.TryGetProperty("basics", out JsonElement basicsElement))
+                        {
+                            if (basicsElement.TryGetProperty("name", out JsonElement nameElement))
+                            {
+                                personName = nameElement.GetString() ?? personName;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not parse name from resume.json");
+            }
+
             // Get API Key
             var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
             if (string.IsNullOrEmpty(apiKey) || apiKey == "YOUR_LOCAL_API_KEY_HERE")
@@ -65,7 +90,29 @@ public class ChatFunction
             }
 
             // Build Gemini Request
-            var systemPrompt = $"You are a warm, conversational, and helpful AI assistant representing the professional portfolio of Jane Doe. Answer the visitor's questions accurately based ONLY on the following resume data: {resumeJson} Keep responses concise (under 150 words), polite, and professional. If asked about something not in the resume, politely state you do not have that information.";
+            var systemPrompt = $"You are a warm, conversational, and helpful AI assistant representing the professional portfolio of {personName}. Answer the visitor's questions accurately based ONLY on the following resume data: {resumeJson} Keep responses concise (under 150 words), polite, and professional. If asked about something not in the resume, politely state you do not have that information.";
+
+            var contents = new List<GeminiContent>();
+
+            // Add history if present
+            if (chatRequest.History != null)
+            {
+                foreach (var msg in chatRequest.History)
+                {
+                    contents.Add(new GeminiContent
+                    {
+                        Role = msg.Role == "model" ? "model" : "user",
+                        Parts = new[] { new GeminiPart { Text = msg.Text } }
+                    });
+                }
+            }
+
+            // Add current message
+            contents.Add(new GeminiContent
+            {
+                Role = "user",
+                Parts = new[] { new GeminiPart { Text = chatRequest.Message } }
+            });
 
             var geminiReq = new GeminiRequest
             {
@@ -73,14 +120,7 @@ public class ChatFunction
                 {
                     Parts = new[] { new GeminiPart { Text = systemPrompt } }
                 },
-                Contents = new[]
-                {
-                    new GeminiContent
-                    {
-                        Role = "user",
-                        Parts = new[] { new GeminiPart { Text = chatRequest.Message } }
-                    }
-                }
+                Contents = contents.ToArray()
             };
 
             var jsonContent = new StringContent(JsonSerializer.Serialize(geminiReq), Encoding.UTF8, "application/json");

@@ -1,0 +1,59 @@
+---
+interface Props {
+    skills: {
+        backend: string[];
+        frontend: string[];
+        devops: string[];
+    };
+}
+
+const { skills } = Astro.props;
+---
+
+<!-- Skills Section -->
+<div>
+    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+        <i class="ph-fill ph-stack text-brand-500"></i> Core Skills
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Frontend -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500 text-2xl mb-4">
+                <i class="ph-fill ph-browsers"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Frontend</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Building responsive, accessible, and performant user interfaces.</p>
+            <div class="flex flex-wrap gap-2">
+                {skills.frontend.map(skill => (
+                    <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md">{skill}</span>
+                ))}
+            </div>
+        </div>
+        <!-- Backend -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-500 text-2xl mb-4">
+                <i class="ph-fill ph-hard-drives"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Backend</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Designing robust APIs, managing databases, and server logic.</p>
+            <div class="flex flex-wrap gap-2">
+                {skills.backend.map(skill => (
+                    <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md">{skill}</span>
+                ))}
+            </div>
+        </div>
+        <!-- DevOps/Leadership (Mapped to devops from resume) -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-500 text-2xl mb-4">
+                <i class="ph-fill ph-users-three"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">DevOps & Cloud</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Guiding agile deployment, system architecture, and cloud services.</p>
+            <div class="flex flex-wrap gap-2">
+                {skills.devops.map(skill => (
+                    <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md">{skill}</span>
+                ))}
+            </div>
+        </div>
+    </div>
+</div>
