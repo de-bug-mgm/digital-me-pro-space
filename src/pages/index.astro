@@ -1,33 +1,50 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Navbar from '../components/Navbar.astro';
+import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
-import BentoGrid from '../components/BentoGrid.astro';
-import ChatDrawer from '../components/ChatDrawer.astro';
+import Skills from '../components/Skills.astro';
+import Experience from '../components/Experience.astro';
+import Projects from '../components/Projects.astro';
+import CareerMap from '../components/CareerMap.astro';
+import ChatWidget from '../components/ChatWidget.astro';
 
 import { getEntry } from 'astro:content';
 
 const resumeData = await getEntry('resume', 'me');
-const data = resumeData!.data;
+let data;
+if (resumeData && resumeData.data) {
+  data = resumeData.data;
+} else {
+  // Read directly from file in dev mode if collections fail to sync properly
+  const fs = await import('fs' as any);
+  data = JSON.parse(fs.readFileSync('data/resume.json', 'utf-8')).me;
+}
+if (!data) throw new Error('Could not load resume data');
 ---
 
 <Layout title={`${data.basics.name} - ${data.basics.title}`}>
-  <Navbar name={data.basics.name} />
+  <Navigation />
 
-  <main class="container mx-auto px-4 max-w-6xl">
-    <Hero
-      name={data.basics.name}
-      title={data.basics.title}
-      shortBio={data.basics.shortBio}
-      links={data.basics.links}
-    />
+  <main class="container mx-auto px-4 max-w-5xl pt-32 pb-24 relative">
 
-    <BentoGrid
-      skills={data.skills}
-      experience={data.experience}
-      projects={data.projects}
-    />
+    <div id="page-home" class="page active">
+        <Hero
+            name={data.basics.name}
+            title={data.basics.title}
+            shortBio={data.basics.shortBio}
+            links={data.basics.links}
+        />
+
+        <Skills skills={data.skills} />
+    </div>
+
+    <Experience experience={data.experience} />
+
+    <Projects projects={data.projects} />
+
   </main>
 
-  <ChatDrawer />
+  <CareerMap experience={data.experience} />
+
+  <ChatWidget />
 </Layout>

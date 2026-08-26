@@ -1,0 +1,54 @@
+---
+interface Experience {
+    company: string;
+    role: string;
+    period: string;
+    highlights: string[];
+}
+
+interface Props {
+    experience: Experience[];
+}
+
+const { experience } = Astro.props;
+---
+
+<!-- PAGE: EXPERIENCE -->
+<div id="page-experience" class="page">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+    <div>
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-3">Work Experience</h2>
+        <p class="text-slate-600 dark:text-slate-400">A timeline of my professional journey.</p>
+    </div>
+
+    <!-- Magic Button for Career Map -->
+    <button onclick="if(window.openCareerMap) window.openCareerMap();" class="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-cyan-500 text-white font-bold shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 transition-all hover:-translate-y-1 overflow-hidden">
+        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+        <span class="relative flex items-center gap-2">
+            <i class="ph-fill ph-map-trifold text-xl"></i> Launch Career Journey Map
+        </span>
+    </button>
+</div>
+
+<div class="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8">
+    {experience.map((job, index) => (
+        <div class="relative">
+            <div class={`absolute w-4 h-4 rounded-full ${index === 0 ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'} -left-[41px] top-1.5 border-4 border-slate-50 dark:border-slate-950`}></div>
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white">{job.role}</h3>
+                <span class={`text-sm font-semibold ${index === 0 ? 'text-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'} px-3 py-1 rounded-full w-max mt-2 sm:mt-0`}>{job.period}</span>
+            </div>
+            <h4 class="text-lg font-medium text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                <i class="ph-fill ph-buildings"></i> {job.company}
+            </h4>
+            <div class="text-slate-600 dark:text-slate-400 leading-relaxed bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <ul class="list-disc pl-5 space-y-1">
+                    {job.highlights.map(highlight => (
+                        <li>{highlight}</li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    ))}
+</div>
+</div>
