@@ -14,7 +14,7 @@ const { experience } = Astro.props;
 ---
 
 <!-- INTRUSIVE CAREER MAP OVERLAY -->
-<div id="map-overlay" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center hidden pointer-events-none select-none overflow-hidden">
+<div id="map-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center pointer-events-none select-none overflow-hidden">
 
     <!-- Map Header & Controls HUD -->
     <div class="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-slate-950 via-slate-950/80 to-transparent pointer-events-auto">
@@ -144,7 +144,7 @@ const { experience } = Astro.props;
 
 <script is:inline>
         // --- Dynamic Camera & Career Journey World Animation ---
-        const mapOverlay = document.getElementById('map-overlay');
+        let mapOverlay = document.getElementById('map-overlay');
         const journeyWorld = document.getElementById('journey-world');
         const journeyCharacter = document.getElementById('journey-character');
         const journeySvgPath = document.getElementById('journey-svg-path');
@@ -161,14 +161,23 @@ const { experience } = Astro.props;
         let animationFrameId = null;
         let triggeredAchievements = new Set();
 
-        const pathLength = journeySvgPath.getTotalLength();
-        journeySvgPath.style.strokeDasharray = pathLength;
-        journeySvgPath.style.strokeDashoffset = pathLength;
+        let pathLength = 0;
+        if (journeySvgPath) {
+            pathLength = journeySvgPath.getTotalLength();
+            journeySvgPath.style.strokeDasharray = pathLength;
+            journeySvgPath.style.strokeDashoffset = pathLength;
+        }
+
+        window.openCareerMap = openCareerMap;
+        window.closeCareerMap = closeCareerMap;
+        window.toggleMapPlay = toggleMapPlay;
 
         function openCareerMap() {
-            mapOverlay.classList.remove('hidden');
+            mapOverlay = document.getElementById('map-overlay');
+            if (!mapOverlay) return;
+            mapOverlay.style.display = 'flex';
             setTimeout(() => {
-                mapOverlay.classList.add('open', 'pointer-events-auto');
+                if (mapOverlay) mapOverlay.classList.add('open', 'pointer-events-auto');
                 resetMapAnimation();
                 isPlaying = true;
                 updatePlayBtnUI();
@@ -179,9 +188,9 @@ const { experience } = Astro.props;
         function closeCareerMap() {
             isPlaying = false;
             cancelAnimationFrame(animationFrameId);
-            mapOverlay.classList.remove('open', 'pointer-events-auto');
+            if (mapOverlay) mapOverlay.classList.remove('open', 'pointer-events-auto');
             setTimeout(() => {
-                mapOverlay.classList.add('hidden');
+                if (mapOverlay) mapOverlay.style.display = 'none';
             }, 800);
         }
 
@@ -204,8 +213,8 @@ const { experience } = Astro.props;
         function resetMapAnimation() {
             progress = 0;
             triggeredAchievements.clear();
-            toastContainer.innerHTML = '';
-            journeySvgPath.style.strokeDashoffset = pathLength;
+            if (toastContainer) toastContainer.innerHTML = '';
+            if (journeySvgPath) journeySvgPath.style.strokeDashoffset = pathLength;
             updateWorldPosition(0);
         }
 
@@ -227,6 +236,10 @@ const { experience } = Astro.props;
         }
 
         function updateWorldPosition(p) {
+            if (!journeySvgPath || !journeyCharacter || !journeyWorld || !journeyProgressBar) {
+                return;
+            }
+
             // Draw path line up to current progress
             const drawOffset = pathLength * (1 - p);
             journeySvgPath.style.strokeDashoffset = drawOffset;
@@ -313,7 +326,7 @@ const { experience } = Astro.props;
                     <div class="text-slate-300">${detail}</div>
                 </div>
             `;
-            toastContainer.appendChild(toast);
+            if (toastContainer) toastContainer.appendChild(toast);
 
             setTimeout(() => {
                 toast.style.opacity = '0';
