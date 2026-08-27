@@ -3,9 +3,9 @@
 
 <div class="fixed top-6 left-0 right-0 z-40 flex justify-center px-4 pointer-events-none">
     <nav class="glass-nav rounded-full px-2 py-2 flex items-center gap-1 md:gap-2 shadow-lg pointer-events-auto">
-        <a href="#" data-target="page-home" class="nav-link active px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">Home</a>
-        <a href="#" data-target="page-experience" class="nav-link px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">Experience</a>
-        <a href="#" data-target="page-projects" class="nav-link px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">Projects</a>
+        <a href="#page-home" class="nav-link active px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">Home</a>
+        <a href="#page-experience" class="nav-link px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">Experience</a>
+        <a href="#page-projects" class="nav-link px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">Projects</a>
 
         <div class="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-2"></div>
 
@@ -25,7 +25,9 @@
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const targetId = link.getAttribute('data-target');
+            const href = link.getAttribute('href');
+            if (!href) return;
+            const targetId = href.substring(1);
 
             // Update Nav State
             navLinks.forEach(l => l.classList.remove('active'));
@@ -39,7 +41,10 @@
                     page.classList.remove('active');
                 }
             });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+            }
         });
     });
 

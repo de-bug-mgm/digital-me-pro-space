@@ -23,19 +23,29 @@ public class ChatFunction
     [Function("ChatFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chat")] HttpRequestData req)
     {
-        _logger.LogInformation("Processing chat request.");
-
         try
         {
             // Parse request body
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var chatRequest = JsonSerializer.Deserialize<ChatRequest>(requestBody);
 
+            _logger.LogInformation($"Processing chat request. History count: {chatRequest?.History?.Count ?? 0}");
+
             if (string.IsNullOrWhiteSpace(chatRequest?.Message))
             {
                 var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
                 await badResponse.WriteStringAsync("Message is required.");
                 return badResponse;
+            }
+
+            if (chatRequest.Message.Length > 500)
+            {
+                chatRequest.Message = chatRequest.Message.Substring(0, 500);
+            }
+
+            if (chatRequest.History != null && chatRequest.History.Count > 10)
+            {
+                chatRequest.History = chatRequest.History.TakeLast(10).ToList();
             }
 
             // Read resume.json
@@ -90,7 +100,16 @@ public class ChatFunction
             }
 
             // Build Gemini Request
-            var systemPrompt = $"You are a warm, conversational, and helpful AI assistant representing the professional portfolio of {personName}. Answer the visitor's questions accurately based ONLY on the following resume data: {resumeJson} Keep responses concise (under 150 words), polite, and professional. If asked about something not in the resume, politely state you do not have that information.";
+            var systemPromptTemplate = Environment.GetEnvironmentVariable("SYSTEM_PROMPT");
+            if (string.IsNullOrEmpty(systemPromptTemplate))
+            {
+                _logger.LogWarning("SYSTEM_PROMPT is not configured in the environment. Using a basic fallback prompt.");
+                systemPromptTemplate = "You are an AI assistant representing {personName}. Answer questions based on: {resumeJson}";
+            }
+
+            var systemPrompt = systemPromptTemplate
+                .Replace("{personName}", personName)
+                .Replace("{resumeJson}", resumeJson);
 
             var contents = new List<GeminiContent>();
 
@@ -124,15 +143,30 @@ public class ChatFunction
             };
 
             var jsonContent = new StringContent(JsonSerializer.Serialize(geminiReq), Encoding.UTF8, "application/json");
-            var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-            var response = await _httpClient.PostAsync(requestUrl, jsonContent);
-            response.EnsureSuccessStatusCode();
+            string reply;
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
+                request.Headers.Add("x-goog-api-key", apiKey);
+                request.Content = jsonContent;
 
-            var responseBody = await response.Content.ReadAsStringAsync();
-            var geminiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseBody);
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
 
-            var reply = geminiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "I'm sorry, I couldn't generate a response.";
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var geminiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseBody);
+
+                reply = geminiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "I'm sorry, I couldn't generate a response.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing chat request to Gemini");
+                var aiErrorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await aiErrorResponse.WriteStringAsync("An error occurred calling the AI service.");
+                return aiErrorResponse;
+            }
 
             var successResponse = req.CreateResponse(HttpStatusCode.OK);
             await successResponse.WriteAsJsonAsync(new ChatResponse { Reply = reply });

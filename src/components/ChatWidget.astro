@@ -101,6 +101,7 @@
     // --- Backend API Integration Logic ---
     let conversationHistory: any[] = [];
     const apiUrl = `/api/chat`; // Updated to point to the local C# Azure Function
+    let isSending = false;
 
     function appendUserMessage(text: string) {
         const msgDiv = document.createElement('div');
@@ -118,16 +119,19 @@
         removeTypingIndicator();
         const msgDiv = document.createElement('div');
         msgDiv.className = 'flex items-start gap-3 mb-5';
-        let formattedText = escapeHTML(text).replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>');
 
         msgDiv.innerHTML = `
             <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 flex-shrink-0 flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 mt-0.5 shadow-sm">
                 <i class="ph-fill ph-sparkle text-sm"></i>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-slate-700 dark:text-slate-300 max-w-[85%] leading-relaxed shadow-sm">
-                ${formattedText}
             </div>
         `;
+        const contentDiv = msgDiv.querySelector('.bg-white');
+        if (contentDiv) {
+            contentDiv.textContent = text;
+        }
+
         chatHistoryContainer?.appendChild(msgDiv);
         scrollToBottom();
     }
@@ -166,11 +170,16 @@
     }
 
     async function processMessage(text: string) {
-        if (!text.trim()) return;
+        if (!text.trim() || isSending) return;
 
+        isSending = true;
         appendUserMessage(text);
-        if (chatInput) (chatInput as HTMLInputElement).value = '';
+        if (chatInput) {
+            (chatInput as HTMLInputElement).value = '';
+            (chatInput as HTMLInputElement).disabled = true;
+        }
         if (chatSendBtn) (chatSendBtn as HTMLButtonElement).disabled = true;
+        suggestedPrompts.forEach(btn => (btn as HTMLButtonElement).disabled = true);
 
         showTypingIndicator();
 
@@ -218,7 +227,10 @@
             console.error("AI Error:", error);
             appendBotMessage("Connection interrupted. Please try again or reach out directly.");
         } finally {
+            isSending = false;
+            if (chatInput) (chatInput as HTMLInputElement).disabled = false;
             if (chatSendBtn) (chatSendBtn as HTMLButtonElement).disabled = false;
+            suggestedPrompts.forEach(btn => (btn as HTMLButtonElement).disabled = false);
             chatInput?.focus();
         }
     }
