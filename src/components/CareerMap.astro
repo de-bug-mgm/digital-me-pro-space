@@ -100,7 +100,7 @@ const { experience } = Astro.props;
                 }
 
                 return (
-                    <div class={`absolute left-[${left}px] top-[${top}px] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center stage-card`} data-year={job.period} data-role={job.role} data-company={job.company} data-x={left}>
+                    <div class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center stage-card" style={`left: ${left}px; top: ${top}px;`} data-year={job.period} data-role={job.role} data-company={job.company} data-x={left}>
                         <div class={`w-14 h-14 rounded-2xl ${revIndex >= 2 ? 'bg-brand-500 border-2 border-white text-slate-950 animate-bounce' : 'bg-slate-900 border-2 border-'+color+'-400 text-'+color+'-400 shadow-'+color+'-400/20'} flex items-center justify-center text-2xl shadow-xl mb-3`}>
                             <i class={`ph-fill ${icon}`}></i>
                         </div>
@@ -135,7 +135,7 @@ const { experience } = Astro.props;
 
         <!-- Scrubber Progress Bar -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl pointer-events-auto">
-            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner cursor-pointer" onclick="seekMap(event)" id="map-scrubber-bg">
+            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner cursor-pointer" id="map-scrubber-bg">
                 <div id="map-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-brand-500 w-0 transition-all duration-75 rounded-full"></div>
             </div>
         </div>

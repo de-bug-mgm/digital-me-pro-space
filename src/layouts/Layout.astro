@@ -26,10 +26,6 @@ const { title } = Astro.props;
 
         <script is:inline>
             // Theme toggle logic to prevent dark mode flash
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const darkIcon = document.querySelector('.ph-moon');
-            const lightIcon = document.querySelector('.ph-sun');
-
             if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
             } else {
