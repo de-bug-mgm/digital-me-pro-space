@@ -26,7 +26,7 @@ const themeData = [
 <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-3">Featured Projects</h2>
 <p class="text-slate-600 dark:text-slate-400 mb-12">Some of the impactful work I've delivered.</p>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
     {projects.map((project, index) => {
         const theme = themeData[index % themeData.length];
         return (

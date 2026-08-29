@@ -22,7 +22,7 @@ const { experience } = Astro.props;
     </div>
 
     <!-- Magic Button for Career Map -->
-    <button onclick="if(window.openCareerMap) window.openCareerMap();" class="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-cyan-500 text-white font-bold shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 transition-all hover:-translate-y-1 overflow-hidden">
+    <button id="launch-career-map-btn" class="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-cyan-500 text-white font-bold shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 transition-all hover:-translate-y-1 overflow-hidden">
         <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
         <span class="relative flex items-center gap-2">
             <i class="ph-fill ph-map-trifold text-xl"></i> Launch Career Journey Map
@@ -52,3 +52,9 @@ const { experience } = Astro.props;
     ))}
 </div>
 </div>
+
+<script is:inline>
+    document.getElementById('launch-career-map-btn')?.addEventListener('click', () => {
+        if(window.openCareerMap) window.openCareerMap();
+    });
+</script>

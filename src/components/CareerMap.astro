@@ -32,11 +32,11 @@ const { experience } = Astro.props;
                 <span id="journey-role-badge" class="text-slate-200 font-semibold truncate max-w-[120px] sm:max-w-none">Beginning</span>
             </div>
 
-            <button id="map-play-btn" onclick="toggleMapPlay()" class="px-4 py-2 rounded-full bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-brand-500/20">
+            <button id="map-play-btn" class="px-4 py-2 rounded-full bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-brand-500/20">
                 <i id="map-play-icon" class="ph-fill ph-pause"></i> <span id="map-play-text">Pause</span>
             </button>
 
-            <button onclick="closeCareerMap()" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center backdrop-blur-sm transition-colors border border-slate-700">
+            <button id="map-close-btn" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center backdrop-blur-sm transition-colors border border-slate-700">
                 <i class="ph-bold ph-x text-lg"></i>
             </button>
         </div>
@@ -136,7 +136,7 @@ const { experience } = Astro.props;
         <!-- Scrubber Progress Bar -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl pointer-events-auto">
             <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner cursor-pointer" id="map-scrubber-bg">
-                <div id="map-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-brand-500 w-0 transition-all duration-75 rounded-full"></div>
+                <div id="journey-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-brand-500 w-0 transition-all duration-75 rounded-full"></div>
             </div>
         </div>
     </div>
@@ -171,6 +171,9 @@ const { experience } = Astro.props;
         window.openCareerMap = openCareerMap;
         window.closeCareerMap = closeCareerMap;
         window.toggleMapPlay = toggleMapPlay;
+
+        document.getElementById('map-play-btn')?.addEventListener('click', toggleMapPlay);
+        document.getElementById('map-close-btn')?.addEventListener('click', closeCareerMap);
 
         function openCareerMap() {
             mapOverlay = document.getElementById('map-overlay');
