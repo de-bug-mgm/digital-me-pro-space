@@ -1,8 +1,13 @@
 ---
+import { getEntry } from 'astro:content';
+const resumeData = await getEntry('resume', 'me');
+const data = resumeData?.data;
+const userName = data?.basics?.name || "Portfolio Owner";
+
 ---
 
 <!-- Floating Chat Button -->
-<button id="chat-toggle" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-brand-600 to-brand-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:shadow-brand-500/50 transition-all z-50">
+<button id="chat-toggle" aria-label="Toggle Chat" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-brand-600 to-brand-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:shadow-brand-500/50 transition-all z-50">
     <i id="chat-icon-open" class="ph-fill ph-chat-teardrop-dots text-3xl"></i>
     <i id="chat-icon-closed" class="ph-bold ph-x text-2xl hidden"></i>
     <span class="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-slate-900 rounded-full animate-pulse"></span>
@@ -17,18 +22,21 @@
         <div class="flex items-center gap-4 relative z-10">
             <div class="relative">
                 <div class="w-12 h-12 rounded-full border-2 border-white/30 bg-white/20 p-1 flex items-center justify-center backdrop-blur-sm">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&backgroundColor=transparent" alt="Alex AI Avatar" class="w-full h-full rounded-full object-cover bg-brand-700"/>
+
+                    <div class="w-full h-full rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-lg" aria-label="AI Avatar">
+                        {userName.charAt(0)}
+                    </div>
                 </div>
                 <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-brand-500 rounded-full"></div>
             </div>
             <div>
-                <h3 class="font-bold text-white text-lg leading-tight">Alex (AI)</h3>
+                <h3 class="font-bold text-white text-lg leading-tight">{userName} (AI)</h3>
                 <p class="text-brand-100 text-xs font-medium flex items-center gap-1">
                     <i class="ph-fill ph-lightning text-yellow-300"></i> Powered by Gemini
                 </p>
             </div>
         </div>
-        <button onclick="toggleChat()" class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors relative z-10" aria-label="Close Chat">
+        <button class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors relative z-10" aria-label="Close Chat">
             <i class="ph-bold ph-caret-down text-xl"></i>
         </button>
     </div>
@@ -47,7 +55,7 @@
                 <i class="ph-fill ph-sparkle text-sm"></i>
             </div>
             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-slate-700 dark:text-slate-300 max-w-[85%] leading-relaxed shadow-sm">
-                Hi! I'm an AI assistant trained on Alex's portfolio. Want to know about his experience leading teams or his tech stack?
+                Hi! I'm an AI assistant trained on {userName}'s portfolio. Want to know about their experience or tech stack?
             </div>
         </div>
     </div>
@@ -56,7 +64,7 @@
     <div class="p-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-t border-slate-200 dark:border-slate-800">
         <div class="relative flex items-center">
             <input type="text" id="chat-input" placeholder="Ask a question..." class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-full pl-5 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow placeholder-slate-400 dark:placeholder-slate-500 shadow-inner" autocomplete="off" />
-            <button id="chat-send" class="absolute right-1.5 w-9 h-9 flex items-center justify-center bg-brand-500 text-white rounded-full hover:bg-brand-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+            <button id="chat-send" aria-label="Send Message" class="absolute right-1.5 w-9 h-9 flex items-center justify-center bg-brand-500 text-white rounded-full hover:bg-brand-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
                 <i class="ph-bold ph-paper-plane-right"></i>
             </button>
         </div>
@@ -97,6 +105,13 @@
     }
 
     chatToggle?.addEventListener('click', toggleChat);
+
+    // Close chat on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isChatOpen) {
+            toggleChat();
+        }
+    });
 
     // --- Backend API Integration Logic ---
     let conversationHistory: any[] = [];
@@ -202,17 +217,11 @@
 
             const result = await response.json();
 
-            if (result.Reply) { // Depending on ChatResponse model
-                appendBotMessage(result.Reply);
-                // Update history
-                conversationHistory.push({ role: "user", text: text });
-                conversationHistory.push({ role: "model", text: result.Reply });
-            } else if (result.reply) {
+            if (result.reply) {
                 appendBotMessage(result.reply);
                 conversationHistory.push({ role: "user", text: text });
                 conversationHistory.push({ role: "model", text: result.reply });
-            }
-             else {
+            } else {
                 throw new Error("Unexpected response structure");
             }
         } catch (error) {
