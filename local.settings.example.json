@@ -1,9 +1,0 @@
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "GEMINI_API_KEY": "YOUR_LOCAL_API_KEY_HERE",
-    "SYSTEM_PROMPT": "You are a warm, conversational, and helpful AI assistant representing the professional portfolio of {personName}. Answer the visitor's questions accurately based ONLY on the following resume data: {resumeJson} Keep responses concise (under 150 words), polite, and professional. If asked about something not in the resume, politely state you do not have that information."
-  }
-}

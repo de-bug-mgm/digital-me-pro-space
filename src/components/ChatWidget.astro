@@ -190,15 +190,7 @@
                 history: conversationHistory
             };
 
-            // Backend is expected to be running at localhost:7071 for dev,
-            // but in production it'll be /api/chat. We'll use absolute if dev, relative if prod.
             let fetchUrl = apiUrl;
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                if (window.location.port !== '7071') {
-                    // Astro dev server port. Function app is usually on 7071
-                    fetchUrl = 'http://localhost:7071/api/chat';
-                }
-            }
 
             const response = await fetch(fetchUrl, {
                 method: 'POST',
