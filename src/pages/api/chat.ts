@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getEntry } from 'astro:content';
 import { z } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 
 
 const chatRequestSchema = z.object({
@@ -11,7 +12,7 @@ const chatRequestSchema = z.object({
   })).max(10).optional().default([])
 });
 
-const getSystemPrompt = (data: any) => `You are a helpful AI assistant representing ${data.basics.name} on their portfolio website.
+const getSystemPrompt = (data: CollectionEntry<'resume'>['data']) => `You are a helpful AI assistant representing ${data.basics.name} on their portfolio website.
 Answer questions based ONLY on the provided portfolio data.
 Do not invent experience, skills, projects, employers, or other portfolio information.
 If the information is not available in the portfolio data, state clearly that you don't have that information.
