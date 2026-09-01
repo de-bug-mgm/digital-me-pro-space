@@ -11,18 +11,16 @@ import ChatWidget from '../components/ChatWidget.astro';
 import { getEntry } from 'astro:content';
 
 const resumeData = await getEntry('resume', 'me');
-let data;
-if (resumeData && resumeData.data) {
-  data = resumeData.data;
-} else {
-  // Read directly from file in dev mode if collections fail to sync properly
-  const fs = await import('fs' as any);
-  data = JSON.parse(fs.readFileSync('data/resume.json', 'utf-8')).me;
-}
+const data = resumeData?.data;
+
 if (!data) throw new Error('Could not load resume data');
 ---
 
-<Layout title={`${data.basics.name} - ${data.basics.title}`}>
+<Layout
+  title={`${data.basics.name} - ${data.basics.title}`}
+  description={data.basics.shortBio}
+  url={Astro.url.href}
+>
   <Navigation />
 
   <main class="container mx-auto px-6 md:px-12 max-w-7xl pt-32 pb-24 relative">

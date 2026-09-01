@@ -9,9 +9,9 @@ const resumeCollection = defineCollection({
       title: z.string(),
       shortBio: z.string(),
       links: z.object({
-        github: z.string(),
-        linkedin: z.string(),
-        email: z.string(),
+        github: z.string().url(),
+        linkedin: z.string().url(),
+        email: z.string().email(),
       }),
     }),
     skills: z.object({
@@ -32,7 +32,7 @@ const resumeCollection = defineCollection({
         title: z.string(),
         description: z.string(),
         tags: z.array(z.string()),
-        link: z.string(),
+        link: z.string().url(),
       })
     ),
   }),
