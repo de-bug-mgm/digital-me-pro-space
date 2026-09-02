@@ -323,8 +323,10 @@ const { experience } = Astro.props;
         });
 
         // Auto-play Step-and-Hold Logic
+        let viewMode = 'timeline';
+        let journeyInitialized = false;
         let activeIndex = 0;
-        let isPlaying = false;
+        let playbackState = 'stopped';
         let animationFrame = null;
         let holdTimeout = null;
         let currentProgress = 0;
@@ -362,17 +364,28 @@ const { experience } = Astro.props;
             });
         }
 
+        function setPlaybackState(nextState) {
+            playbackState = nextState;
+            updatePlayBtnUI();
+        }
+
+        function initializeJourney() {
+            clearTimeout(holdTimeout);
+            cancelAnimationFrame(animationFrame);
+            activeIndex = 0;
+            currentProgress = 0;
+            journeyInitialized = true;
+            setPlaybackState('stopped');
+            updateMilestoneStates();
+            if (avatar) avatar.style.offsetDistance = '0%';
+            const progressBar = document.getElementById('journey-progress-bar');
+            if (progressBar) progressBar.style.width = '0%';
+        }
+
         function animateToNode(targetIndex) {
             const startProgress = currentProgress;
             const targetProgress = targetIndex / (Math.max(1, totalNodes - 1));
             const startTime = performance.now();
-
-            cards.forEach(card => {
-                const idx = parseInt(card.getAttribute('data-index'));
-                const pointIndex = points.findIndex(p => p.origIndex === idx);
-                if (pointIndex < targetIndex) card.setAttribute('data-state', 'completed');
-                else card.setAttribute('data-state', 'upcoming');
-            });
 
             if(avatar) avatar.classList.add('is-moving');
 
@@ -410,14 +423,15 @@ const { experience } = Astro.props;
                     if(avatar) avatar.classList.remove('is-moving');
                     updateMilestoneStates();
 
-                    if (isPlaying) {
+                    if (playbackState === 'playing') {
                         if (activeIndex < totalNodes - 1) {
+                            setPlaybackState('holding');
                             holdTimeout = setTimeout(() => {
+                                setPlaybackState('playing');
                                 animateToNode(activeIndex + 1);
                             }, HOLD_DURATION);
                         } else {
-                            isPlaying = false;
-                            updatePlayBtnUI();
+                            setPlaybackState('completed');
                         }
                     }
                 }
@@ -427,28 +441,24 @@ const { experience } = Astro.props;
 
         window.journeyController = {
             play: () => {
-                if (isPlaying || activeIndex >= totalNodes - 1) return;
-                isPlaying = true;
-                updatePlayBtnUI();
-                holdTimeout = setTimeout(() => {
-                    animateToNode(activeIndex + 1);
-                }, HOLD_DURATION);
+                if (!journeyInitialized || playbackState === 'playing' || playbackState === 'holding' || activeIndex >= totalNodes - 1) return;
+                setPlaybackState('playing');
+                animateToNode(activeIndex + 1);
             },
             pause: () => {
-                isPlaying = false;
                 clearTimeout(holdTimeout);
                 cancelAnimationFrame(animationFrame);
-                updatePlayBtnUI();
+                if (playbackState !== 'completed') setPlaybackState('paused');
             },
             goTo: (index) => {
                 if (index < 0 || index >= totalNodes) return;
                 clearTimeout(holdTimeout);
                 cancelAnimationFrame(animationFrame);
-                updatePlayBtnUI();
+                setPlaybackState('paused');
                 animateToNode(index);
             },
             togglePlay: () => {
-                if (isPlaying) window.journeyController.pause();
+                if (playbackState === 'playing' || playbackState === 'holding') window.journeyController.pause();
                 else window.journeyController.play();
             },
             next: () => {
@@ -463,7 +473,7 @@ const { experience } = Astro.props;
             const btnText = document.getElementById('journey-play-text');
             const btnIcon = document.getElementById('journey-play-icon');
             if (btnText && btnIcon) {
-                if (isPlaying) {
+                if (playbackState === 'playing' || playbackState === 'holding') {
                     btnText.textContent = "Pause";
                     btnIcon.className = "ph-fill ph-pause";
                 } else {
@@ -472,16 +482,6 @@ const { experience } = Astro.props;
                 }
             }
         }
-
-        // Initial setup only (no auto-play until toggle)
-        setTimeout(() => {
-            activeIndex = 0;
-            currentProgress = 0;
-            updateMilestoneStates();
-            if(avatar) avatar.style.offsetDistance = `0%`;
-            const progressBar = document.getElementById('journey-progress-bar');
-            if(progressBar) progressBar.style.width = `0%`;
-        }, 100);
 
         // Attach manual control listeners
         const playBtn = document.getElementById('journey-play-btn');
@@ -529,13 +529,12 @@ const { experience } = Astro.props;
         const toggleBtn = document.getElementById('toggle-timeline-btn');
         const desktopView = document.getElementById('desktop-journey-container');
         const mobileView = document.getElementById('mobile-timeline-wrapper');
-        let journeyStarted = false;
 
         if (toggleBtn && desktopView && mobileView) {
             toggleBtn.addEventListener('click', () => {
-                const isTimeline = !desktopView.classList.contains('hidden');
-                if (isTimeline) {
+                if (viewMode === 'interactive') {
                     // Switch to Timeline
+                    viewMode = 'timeline';
                     desktopView.classList.add('hidden');
                     mobileView.classList.remove('hidden');
                     toggleBtn.innerHTML = '<i class="ph-fill ph-play-circle text-lg"></i> View Interactive Journey';
@@ -543,24 +542,14 @@ const { experience } = Astro.props;
                     window.journeyController.pause();
                 } else {
                     // Switch to Interactive Journey
+                    viewMode = 'interactive';
                     desktopView.classList.remove('hidden');
                     mobileView.classList.add('hidden');
                     toggleBtn.innerHTML = '<i class="ph-bold ph-list-dashes text-lg"></i> View Timeline';
                     toggleBtn.className = "px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-2";
 
-                    if (!journeyStarted) {
-                        journeyStarted = true;
-                        // reset and play instantly
-                        setTimeout(() => {
-                            activeIndex = 0;
-                            currentProgress = 0;
-                            updateMilestoneStates();
-                            if(avatar) avatar.style.offsetDistance = `0%`;
-                            const progressBar = document.getElementById('journey-progress-bar');
-                            if(progressBar) progressBar.style.width = `0%`;
-                            window.journeyController.play();
-                        }, 100);
-                    }
+                    if (!journeyInitialized) initializeJourney();
+                    if (playbackState !== 'completed') window.journeyController.play();
                 }
             });
         }
@@ -570,7 +559,7 @@ const { experience } = Astro.props;
         if (section) {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (!entry.isIntersecting && isPlaying) {
+                    if (!entry.isIntersecting && (playbackState === 'playing' || playbackState === 'holding')) {
                         window.journeyController.pause();
                     }
                 });
