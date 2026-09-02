@@ -14,20 +14,20 @@ const { experience } = Astro.props;
 ---
 
 <section id="page-experience" class="w-full my-12 relative page">
-    <div class="mb-12 flex justify-between items-end">
+    <div class="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
             <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-3">Work Experience</h2>
             <p class="text-slate-600 dark:text-slate-400">A timeline of my professional journey.</p>
         </div>
-        <div class="hidden lg:block">
-            <button id="toggle-timeline-btn" class="px-5 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors shadow-sm">
-                View Timeline
+        <div>
+            <button id="toggle-timeline-btn" class="px-5 py-2.5 bg-gradient-to-r from-brand-500 to-cyan-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                <i class="ph-fill ph-play-circle text-lg"></i> View Interactive Journey
             </button>
         </div>
     </div>
 
-    <!-- Mobile & Tablet View: Vertical Timeline -->
-    <div id="mobile-timeline-wrapper" class="block lg:hidden space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8">
+    <!-- Default View: Vertical Timeline -->
+    <div id="mobile-timeline-wrapper" class="block space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8">
         {experience.map((job, index) => (
             <div class="relative">
                 <div class={`absolute w-4 h-4 rounded-full ${index === 0 ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'} -left-[41px] top-1.5 border-4 border-slate-50 dark:border-slate-950`}></div>
@@ -49,8 +49,8 @@ const { experience } = Astro.props;
         ))}
     </div>
 
-    <!-- Desktop View: Interactive Career Journey -->
-    <div class="hidden lg:block relative w-full h-[600px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" id="desktop-journey-container">
+    <!-- Interactive Career Journey (Hidden by default) -->
+    <div class="hidden relative w-full h-[600px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" id="desktop-journey-container">
 
         <!-- Controls HUD -->
         <div class="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-slate-950 via-slate-950/80 to-transparent">
@@ -89,29 +89,42 @@ const { experience } = Astro.props;
                             <stop offset="50%" stop-color="#14b8a6" />
                             <stop offset="100%" stop-color="#a855f7" />
                         </linearGradient>
+                        <pattern id="grid-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+                        </pattern>
                     </defs>
+                    <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+
+                    <!-- Base Track Shadow -->
+                    <path id="journey-bg-shadow" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="24" stroke-linecap="round" transform="translate(0, 8)"/>
+
                     <!-- Background Guide Track -->
-                    <path id="journey-bg-path" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+                    <path id="journey-bg-path" fill="none" stroke="rgba(30, 41, 59, 0.8)" stroke-width="20" stroke-linecap="round"/>
+
+                    <!-- Inner Lane Guide -->
+                    <path id="journey-inner-path" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6"/>
+
                     <!-- Active Path -->
-                    <path id="journey-active-path" fill="none" stroke="url(#path-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0" stroke-dashoffset="0"/>
+                    <path id="journey-active-path" fill="none" stroke="url(#path-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0" stroke-dashoffset="0" style="filter: drop-shadow(0 0 8px rgba(56,189,248,0.5));"/>
                 </svg>
 
                 <!-- Container for Milestone Cards -->
                 <div id="journey-milestones-container" class="absolute inset-0 w-full h-full pointer-events-none">
                     {experience.map((job, index) => (
                         <div class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center stage-card pointer-events-auto opacity-0 transition-all duration-500" data-index={index} data-state="upcoming">
-                            <div class="w-14 h-14 rounded-2xl bg-slate-900 border-2 border-slate-700 text-slate-500 flex items-center justify-center text-2xl shadow-xl mb-3 cursor-pointer transition-all duration-500 stage-icon relative" data-index={index}>
+                            <div class="w-14 h-14 rounded-2xl bg-slate-900 border-2 border-slate-700 text-slate-500 flex items-center justify-center text-2xl shadow-xl mb-3 cursor-pointer transition-all duration-500 stage-icon relative z-10" data-index={index}>
                                 <i class="ph-fill ph-buildings stage-icon-inner"></i>
                                 <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-2 border-slate-900 flex items-center justify-center text-white opacity-0 transition-opacity duration-300 stage-checkmark">
                                     <i class="ph-bold ph-check text-xs"></i>
                                 </div>
                             </div>
-                            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 text-center w-64 shadow-2xl backdrop-blur-md transition-all duration-500 stage-details cursor-pointer overflow-hidden h-[90px]">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 stage-period">{job.period}</span>
-                                <h4 class="text-base font-extrabold text-slate-300 stage-company">{job.company}</h4>
-                                <p class="text-xs font-semibold text-slate-500 stage-role">{job.role}</p>
+                            <!-- Dashed line connector will be drawn in CSS pseudo element or we just let it float nicely -->
+                            <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 text-center w-72 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-500 stage-details cursor-pointer overflow-hidden h-[90px] relative before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 stage-period">{job.period}</span>
+                                <h4 class="text-lg font-extrabold text-slate-200 stage-company leading-tight mt-1">{job.company}</h4>
+                                <p class="text-xs font-semibold text-slate-500 stage-role mt-1">{job.role}</p>
                                 <div class="mt-4 text-left opacity-0 transition-opacity duration-500 stage-expanded-content">
-                                    <ul class="list-disc pl-4 space-y-1 text-slate-400 text-xs">
+                                    <ul class="list-disc pl-4 space-y-1.5 text-slate-300 text-xs leading-relaxed">
                                         {job.highlights.map(highlight => (
                                             <li>{highlight}</li>
                                         ))}
@@ -123,18 +136,26 @@ const { experience } = Astro.props;
                 </div>
 
                 <!-- Dynamic Character Sprite -->
-                <div id="journey-avatar" class="absolute top-0 left-0 w-12 h-16 transition-all duration-75 z-30" style="offset-path: path('M0,0'); offset-distance: 0%; offset-rotate: auto 90deg;">
-                    <svg viewBox="0 0 40 60" class="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                        <g class="char-body-bounce">
-                            <circle cx="20" cy="15" r="10" fill="#cbd5e1"/>
-                            <path d="M 8 15 A 12 12 0 0 1 32 15" fill="none" stroke="#14b8a6" stroke-width="4" stroke-linecap="round"/>
-                            <rect x="6" y="12" width="5" height="8" rx="2" fill="#14b8a6"/>
-                            <rect x="29" y="12" width="5" height="8" rx="2" fill="#14b8a6"/>
-                        </g>
-                        <g class="char-body-bounce">
-                            <rect x="12" y="25" width="16" height="20" rx="4" fill="#334155"/>
-                            <rect x="10" y="28" width="20" height="12" rx="3" fill="#1e293b"/>
-                            <circle cx="20" cy="34" r="3" fill="#38bdf8" class="animate-pulse"/>
+                <div id="journey-avatar" class="absolute top-0 left-0 w-16 h-20 transition-all duration-75 z-30 flex items-center justify-center pointer-events-none" style="offset-path: path('M0,0'); offset-distance: 0%; offset-rotate: auto 90deg; margin-top: -30px; margin-left: -10px;">
+                    <svg viewBox="0 0 60 80" class="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] avatar-svg">
+                        <g class="char-body-idle">
+                            <!-- Legs -->
+                            <rect x="22" y="50" width="6" height="20" rx="3" fill="#1e293b" class="leg-left"/>
+                            <rect x="32" y="50" width="6" height="20" rx="3" fill="#1e293b" class="leg-right"/>
+                            <!-- Torso/Jacket -->
+                            <rect x="16" y="28" width="28" height="26" rx="6" fill="#334155"/>
+                            <path d="M 20 28 L 40 28 L 35 54 L 25 54 Z" fill="#0f172a"/>
+                            <circle cx="30" cy="40" r="4" fill="#38bdf8" class="animate-pulse"/>
+                            <!-- Arms -->
+                            <rect x="12" y="30" width="6" height="18" rx="3" fill="#475569" class="arm-left"/>
+                            <rect x="42" y="30" width="6" height="18" rx="3" fill="#475569" class="arm-right"/>
+                            <!-- Head/Helmet -->
+                            <circle cx="30" cy="18" r="14" fill="#cbd5e1"/>
+                            <!-- Visor -->
+                            <path d="M 18 18 A 12 12 0 0 1 42 18" fill="none" stroke="#14b8a6" stroke-width="6" stroke-linecap="round"/>
+                            <!-- Headphones/Earpieces -->
+                            <rect x="14" y="14" width="4" height="10" rx="2" fill="#14b8a6"/>
+                            <rect x="42" y="14" width="4" height="10" rx="2" fill="#14b8a6"/>
                         </g>
                     </svg>
                 </div>
@@ -174,7 +195,7 @@ const { experience } = Astro.props;
     .stage-card[data-state="active"] .stage-icon {
         border-color: #38bdf8;
         color: #38bdf8;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.2);
     }
     .stage-card[data-state="completed"] .stage-icon {
         border-color: #14b8a6;
@@ -182,15 +203,37 @@ const { experience } = Astro.props;
     }
 
     .stage-card[data-state="active"] .stage-details {
-        background-color: rgba(15, 23, 42, 0.95);
-        border-color: #38bdf8;
-        height: 200px;
+        background-color: rgba(15, 23, 42, 0.85);
+        border-color: rgba(56, 189, 248, 0.5);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+        height: 220px;
         overflow-y: auto;
     }
     .stage-card[data-state="active"] .stage-period { color: #38bdf8; }
     .stage-card[data-state="active"] .stage-company { color: #ffffff; }
     .stage-card[data-state="active"] .stage-expanded-content { opacity: 1; }
     .stage-card[data-state="completed"] .stage-checkmark { opacity: 1; }
+
+    @keyframes avatar-bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+    @keyframes avatar-walk {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(15deg); }
+        75% { transform: rotate(-15deg); }
+    }
+    .is-moving .char-body-idle {
+        animation: avatar-bob 0.4s ease-in-out infinite;
+    }
+    .is-moving .leg-left {
+        transform-origin: top center;
+        animation: avatar-walk 0.4s ease-in-out infinite;
+    }
+    .is-moving .leg-right {
+        transform-origin: top center;
+        animation: avatar-walk 0.4s ease-in-out infinite reverse;
+    }
 </style>
 
 <script is:inline define:vars={{ experienceData: experience }}>
@@ -209,6 +252,8 @@ const { experience } = Astro.props;
         const world = document.getElementById('journey-world');
         const svgCanvas = document.getElementById('journey-svg-canvas');
         const bgPath = document.getElementById('journey-bg-path');
+        const bgShadow = document.getElementById('journey-bg-shadow');
+        const innerPath = document.getElementById('journey-inner-path');
         const activePath = document.getElementById('journey-active-path');
 
         if(world) world.style.width = `${Math.max(window.innerWidth, worldWidth)}px`;
@@ -219,10 +264,11 @@ const { experience } = Astro.props;
 
         let pathD = "";
         const points = [];
+        const verticalPositions = [400, 150, 450, 200];
         for(let i=0; i<count; i++) {
             const reversedIndex = count - 1 - i;
             const cx = paddingX + (reversedIndex * spacingX);
-            const cy = (reversedIndex % 2 === 0) ? 450 : 150;
+            const cy = verticalPositions[reversedIndex % verticalPositions.length];
             points.push({x: cx, y: cy, origIndex: i});
         }
 
@@ -239,6 +285,8 @@ const { experience } = Astro.props;
         }
 
         if(bgPath) bgPath.setAttribute('d', pathD);
+        if(bgShadow) bgShadow.setAttribute('d', pathD);
+        if(innerPath) innerPath.setAttribute('d', pathD);
         if(activePath) {
             activePath.setAttribute('d', pathD);
             const totalLength = activePath.getTotalLength();
@@ -259,6 +307,18 @@ const { experience } = Astro.props;
                 card.style.left = `${point.x}px`;
                 card.style.top = `${point.y}px`;
                 card.style.opacity = '1';
+
+                const detailCard = card.querySelector('.stage-details');
+                if (detailCard) {
+                    detailCard.style.position = 'absolute';
+                    if (point.y < 300) {
+                        detailCard.style.top = '70px';
+                        detailCard.style.bottom = 'auto';
+                    } else {
+                        detailCard.style.bottom = '70px';
+                        detailCard.style.top = 'auto';
+                    }
+                }
             }
         });
 
@@ -272,8 +332,8 @@ const { experience } = Astro.props;
         const totalNodes = points.length;
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const MOVE_DURATION = prefersReducedMotion ? 0 : 2500;
-        const HOLD_DURATION = prefersReducedMotion ? 9999999 : 6000;
+        const MOVE_DURATION = prefersReducedMotion ? 0 : 3500;
+        const HOLD_DURATION = prefersReducedMotion ? 9999999 : 8000;
 
         if (prefersReducedMotion) {
             const playBtn = document.getElementById('journey-play-btn');
@@ -314,6 +374,8 @@ const { experience } = Astro.props;
                 else card.setAttribute('data-state', 'upcoming');
             });
 
+            if(avatar) avatar.classList.add('is-moving');
+
             function step(currentTime) {
                 const elapsed = currentTime - startTime;
                 let t = elapsed / MOVE_DURATION;
@@ -345,6 +407,7 @@ const { experience } = Astro.props;
                     animationFrame = requestAnimationFrame(step);
                 } else {
                     activeIndex = targetIndex;
+                    if(avatar) avatar.classList.remove('is-moving');
                     updateMilestoneStates();
 
                     if (isPlaying) {
@@ -379,7 +442,6 @@ const { experience } = Astro.props;
             },
             goTo: (index) => {
                 if (index < 0 || index >= totalNodes) return;
-                isPlaying = false;
                 clearTimeout(holdTimeout);
                 cancelAnimationFrame(animationFrame);
                 updatePlayBtnUI();
@@ -411,6 +473,7 @@ const { experience } = Astro.props;
             }
         }
 
+        // Initial setup only (no auto-play until toggle)
         setTimeout(() => {
             activeIndex = 0;
             currentProgress = 0;
@@ -466,20 +529,38 @@ const { experience } = Astro.props;
         const toggleBtn = document.getElementById('toggle-timeline-btn');
         const desktopView = document.getElementById('desktop-journey-container');
         const mobileView = document.getElementById('mobile-timeline-wrapper');
+        let journeyStarted = false;
 
         if (toggleBtn && desktopView && mobileView) {
             toggleBtn.addEventListener('click', () => {
-                const isTimeline = desktopView.classList.contains('hidden');
+                const isTimeline = !desktopView.classList.contains('hidden');
                 if (isTimeline) {
-                    desktopView.classList.remove('hidden');
-                    desktopView.classList.add('lg:block');
-                    mobileView.classList.add('lg:hidden');
-                    toggleBtn.textContent = 'View Timeline';
-                } else {
+                    // Switch to Timeline
                     desktopView.classList.add('hidden');
-                    desktopView.classList.remove('lg:block');
-                    mobileView.classList.remove('lg:hidden');
-                    toggleBtn.textContent = 'View Interactive Journey';
+                    mobileView.classList.remove('hidden');
+                    toggleBtn.innerHTML = '<i class="ph-fill ph-play-circle text-lg"></i> View Interactive Journey';
+                    toggleBtn.className = "px-5 py-2.5 bg-gradient-to-r from-brand-500 to-cyan-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all hover:-translate-y-0.5 flex items-center gap-2";
+                    window.journeyController.pause();
+                } else {
+                    // Switch to Interactive Journey
+                    desktopView.classList.remove('hidden');
+                    mobileView.classList.add('hidden');
+                    toggleBtn.innerHTML = '<i class="ph-bold ph-list-dashes text-lg"></i> View Timeline';
+                    toggleBtn.className = "px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-2";
+
+                    if (!journeyStarted) {
+                        journeyStarted = true;
+                        // reset and play instantly
+                        setTimeout(() => {
+                            activeIndex = 0;
+                            currentProgress = 0;
+                            updateMilestoneStates();
+                            if(avatar) avatar.style.offsetDistance = `0%`;
+                            const progressBar = document.getElementById('journey-progress-bar');
+                            if(progressBar) progressBar.style.width = `0%`;
+                            window.journeyController.play();
+                        }, 100);
+                    }
                 }
             });
         }
