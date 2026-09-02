@@ -13,330 +13,570 @@ interface Props {
 const { experience } = Astro.props;
 ---
 
-<!-- INTRUSIVE CAREER MAP OVERLAY -->
-<div id="map-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center pointer-events-none select-none overflow-hidden">
-
-    <!-- Map Header & Controls HUD -->
-    <div class="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-slate-950 via-slate-950/80 to-transparent pointer-events-auto">
+<section id="page-experience" class="w-full my-12 relative page">
+    <div class="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-            <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
-                <i class="ph-fill ph-game-controller text-brand-400"></i> Interactive Career Journey
-            </h2>
-            <p class="text-xs text-slate-400 hidden sm:block">Watch the journey unfold across companies, achievements & skills.</p>
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-3">Work Experience</h2>
+            <p class="text-slate-600 dark:text-slate-400">A timeline of my professional journey.</p>
         </div>
+        <div>
+            <button id="toggle-timeline-btn" class="px-5 py-2.5 bg-gradient-to-r from-brand-500 to-cyan-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                <i class="ph-fill ph-play-circle text-lg"></i> View Interactive Journey
+            </button>
+        </div>
+    </div>
 
-        <div class="flex items-center gap-3">
-            <div class="bg-slate-900/90 border border-slate-800 rounded-full px-4 py-1.5 flex items-center gap-3 text-xs text-slate-300">
-                <span id="journey-year-badge" class="font-bold text-brand-400 text-sm">Start</span>
-                <span class="w-px h-4 bg-slate-700"></span>
-                <span id="journey-role-badge" class="text-slate-200 font-semibold truncate max-w-[120px] sm:max-w-none">Beginning</span>
+    <!-- Default View: Vertical Timeline -->
+    <div id="mobile-timeline-wrapper" class="block space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8">
+        {experience.map((job, index) => (
+            <div class="relative">
+                <div class={`absolute w-4 h-4 rounded-full ${index === 0 ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-700'} -left-[41px] top-1.5 border-4 border-slate-50 dark:border-slate-950`}></div>
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">{job.role}</h3>
+                    <span class={`text-sm font-semibold ${index === 0 ? 'text-brand-500 bg-brand-50 dark:bg-brand-500/10' : 'text-slate-500 bg-slate-100 dark:bg-slate-800'} px-3 py-1 rounded-full w-max mt-2 sm:mt-0`}>{job.period}</span>
+                </div>
+                <h4 class="text-lg font-medium text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                    <i class="ph-fill ph-buildings"></i> {job.company}
+                </h4>
+                <div class="text-slate-600 dark:text-slate-400 leading-relaxed bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <ul class="list-disc pl-5 space-y-1">
+                        {job.highlights.map(highlight => (
+                            <li>{highlight}</li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        ))}
+    </div>
+
+    <!-- Interactive Career Journey (Hidden by default) -->
+    <div class="hidden relative w-full h-[600px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl" id="desktop-journey-container">
+
+        <!-- Controls HUD -->
+        <div class="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-slate-950 via-slate-950/80 to-transparent">
+            <div>
+                <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                    <i class="ph-fill ph-game-controller text-brand-400"></i> Interactive Career Journey
+                </h2>
             </div>
 
-            <button id="map-play-btn" class="px-4 py-2 rounded-full bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-brand-500/20">
-                <i id="map-play-icon" class="ph-fill ph-pause"></i> <span id="map-play-text">Pause</span>
-            </button>
-
-            <button id="map-close-btn" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center backdrop-blur-sm transition-colors border border-slate-700">
-                <i class="ph-bold ph-x text-lg"></i>
-            </button>
+            <div class="flex items-center gap-3">
+                <button id="journey-prev-btn" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition-colors border border-slate-700">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                <button id="journey-play-btn" class="px-4 py-2 rounded-full bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-brand-500/20">
+                    <i id="journey-play-icon" class="ph-fill ph-play"></i> <span id="journey-play-text">Auto Play</span>
+                </button>
+                <button id="journey-next-btn" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition-colors border border-slate-700">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- Live Achievement Notification Banner -->
-    <div class="absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none w-full max-w-md px-4">
-        <div id="achievement-toast-container" class="space-y-2"></div>
-    </div>
+        <!-- Scrollable Camera Container World -->
+        <div id="journey-viewport" class="w-full h-full relative overflow-hidden bg-slate-950">
+            <!-- Background Stars / Grid -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:40px_40px]"></div>
 
-    <!-- Scrollable Camera Container World -->
-    <div id="journey-viewport" class="w-full h-full relative overflow-hidden pointer-events-auto bg-slate-950">
-        <!-- Background Stars / Grid -->
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+            <!-- Moving World Track Layer -->
+            <div id="journey-world" class="absolute top-0 left-0 h-full w-[2800px] transition-transform duration-700 ease-in-out will-change-transform">
 
-        <!-- Moving World Track Layer -->
-        <div id="journey-world" class="absolute top-0 left-0 h-full w-[2800px] transition-transform duration-75 cubic-bezier(0,0,0.2,1) will-change-transform">
+                <!-- SVG Pathway Line -->
+                <svg id="journey-svg-canvas" width="2800" height="600" viewBox="0 0 2800 600" class="absolute inset-0 w-full h-full pointer-events-none">
+                    <defs>
+                        <linearGradient id="path-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#38bdf8" />
+                            <stop offset="50%" stop-color="#14b8a6" />
+                            <stop offset="100%" stop-color="#a855f7" />
+                        </linearGradient>
+                        <pattern id="grid-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-            <!-- SVG Pathway Line -->
-            <svg width="2800" height="1000" viewBox="0 0 2800 1000" class="absolute inset-0 w-full h-full">
-                <defs>
-                    <linearGradient id="path-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#38bdf8" />
-                        <stop offset="50%" stop-color="#14b8a6" />
-                        <stop offset="100%" stop-color="#a855f7" />
-                    </linearGradient>
-                </defs>
-                <!-- Background Guide Track -->
-                <path d="M 100 550 Q 400 350 700 450 T 1300 400 T 1900 480 Q 2200 350 2550 220" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
-                <!-- Active Path -->
-                <path id="journey-svg-path" d="M 100 550 Q 400 350 700 450 T 1300 400 T 1900 480 Q 2200 350 2550 220" fill="none" stroke="url(#path-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="3000" stroke-dashoffset="3000"/>
-            </svg>
+                    <!-- Base Track Shadow -->
+                    <path id="journey-bg-shadow" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="24" stroke-linecap="round" transform="translate(0, 8)"/>
 
-            <!-- Dynamic Experience Stages -->
-            {experience.map((job, index) => {
-                // Determine positions based on index.
-                // Assuming max 3 items for the path design, otherwise distribute evenly.
-                let left = 100;
-                let top = 550;
-                let icon = 'ph-buildings';
-                let color = 'cyan';
+                    <!-- Background Guide Track -->
+                    <path id="journey-bg-path" fill="none" stroke="rgba(30, 41, 59, 0.8)" stroke-width="20" stroke-linecap="round"/>
 
-                // Reversed map order (oldest first visually, usually array is newest first)
-                const revIndex = experience.length - 1 - index;
+                    <!-- Inner Lane Guide -->
+                    <path id="journey-inner-path" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6"/>
 
-                if (revIndex === 0) {
-                    left = 100;
-                    top = 550;
-                    icon = 'ph-paint-brush';
-                    color = 'cyan';
-                } else if (revIndex === 1) {
-                    left = 1300;
-                    top = 400;
-                    icon = 'ph-code-block';
-                    color = 'brand';
-                } else if (revIndex >= 2) {
-                    left = 2550;
-                    top = 220;
-                    icon = 'ph-trophy';
-                    color = 'brand-500';
-                }
-
-                return (
-                    <div class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center stage-card" style={`left: ${left}px; top: ${top}px;`} data-year={job.period} data-role={job.role} data-company={job.company} data-x={left}>
-                        <div class={`w-14 h-14 rounded-2xl ${revIndex >= 2 ? 'bg-brand-500 border-2 border-white text-slate-950 animate-bounce' : 'bg-slate-900 border-2 border-'+color+'-400 text-'+color+'-400 shadow-'+color+'-400/20'} flex items-center justify-center text-2xl shadow-xl mb-3`}>
-                            <i class={`ph-fill ${icon}`}></i>
-                        </div>
-                        <div class={`bg-slate-900/95 border ${revIndex >= 2 ? 'border-brand-500/50' : 'border-slate-800'} rounded-xl p-4 text-center w-64 shadow-2xl backdrop-blur-md`}>
-                            <span class={`text-[10px] font-bold uppercase tracking-wider text-${color === 'brand-500' ? 'brand-400' : color+'-400'}`}>{job.period}</span>
-                            <h4 class="text-base font-extrabold text-white">{job.company}</h4>
-                            <p class={`text-xs font-semibold ${revIndex >= 2 ? 'text-brand-300' : 'text-slate-400'}`}>{job.role}</p>
-                        </div>
-                    </div>
-                );
-            })}
-
-            <!-- Dynamic Character Sprite -->
-            <div id="journey-character" class="absolute top-0 left-0 -translate-x-1/2 -translate-y-full w-12 h-16 pointer-events-none transition-all duration-75">
-                <svg viewBox="0 0 40 60" class="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-                    <!-- Head / Headphones -->
-                    <g class="char-body-bounce">
-                        <circle cx="20" cy="15" r="10" fill="#cbd5e1"/>
-                        <path d="M 8 15 A 12 12 0 0 1 32 15" fill="none" stroke="#14b8a6" stroke-width="4" stroke-linecap="round"/>
-                        <rect x="6" y="12" width="5" height="8" rx="2" fill="#14b8a6"/>
-                        <rect x="29" y="12" width="5" height="8" rx="2" fill="#14b8a6"/>
-                    </g>
-                    <!-- Body Backpack -->
-                    <g class="char-body-bounce">
-                        <rect x="12" y="25" width="16" height="20" rx="4" fill="#334155"/>
-                        <rect x="10" y="28" width="20" height="12" rx="3" fill="#1e293b"/>
-                        <circle cx="20" cy="34" r="3" fill="#38bdf8" class="animate-pulse"/>
-                    </g>
+                    <!-- Active Path -->
+                    <path id="journey-active-path" fill="none" stroke="url(#path-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0" stroke-dashoffset="0" style="filter: drop-shadow(0 0 8px rgba(56,189,248,0.5));"/>
                 </svg>
-            </div>
-        </div>
 
-        <!-- Scrubber Progress Bar -->
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl pointer-events-auto">
-            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner cursor-pointer" id="map-scrubber-bg">
-                <div id="journey-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-brand-500 w-0 transition-all duration-75 rounded-full"></div>
+                <!-- Container for Milestone Cards -->
+                <div id="journey-milestones-container" class="absolute inset-0 w-full h-full pointer-events-none">
+                    {experience.map((job, index) => (
+                        <div class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center stage-card pointer-events-auto opacity-0 transition-all duration-500" data-index={index} data-state="upcoming">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-900 border-2 border-slate-700 text-slate-500 flex items-center justify-center text-2xl shadow-xl mb-3 cursor-pointer transition-all duration-500 stage-icon relative z-10" data-index={index}>
+                                <i class="ph-fill ph-buildings stage-icon-inner"></i>
+                                <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-2 border-slate-900 flex items-center justify-center text-white opacity-0 transition-opacity duration-300 stage-checkmark">
+                                    <i class="ph-bold ph-check text-xs"></i>
+                                </div>
+                            </div>
+                            <!-- Dashed line connector will be drawn in CSS pseudo element or we just let it float nicely -->
+                            <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-5 text-center w-72 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-500 stage-details cursor-pointer overflow-hidden h-[90px] relative before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 stage-period">{job.period}</span>
+                                <h4 class="text-lg font-extrabold text-slate-200 stage-company leading-tight mt-1">{job.company}</h4>
+                                <p class="text-xs font-semibold text-slate-500 stage-role mt-1">{job.role}</p>
+                                <div class="mt-4 text-left opacity-0 transition-opacity duration-500 stage-expanded-content">
+                                    <ul class="list-disc pl-4 space-y-1.5 text-slate-300 text-xs leading-relaxed">
+                                        {job.highlights.map(highlight => (
+                                            <li>{highlight}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <!-- Dynamic Character Sprite -->
+                <div id="journey-avatar" class="absolute top-0 left-0 w-16 h-20 transition-all duration-75 z-30 flex items-center justify-center pointer-events-none" style="offset-path: path('M0,0'); offset-distance: 0%; offset-rotate: auto 90deg; margin-top: -30px; margin-left: -10px;">
+                    <svg viewBox="0 0 60 80" class="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] avatar-svg">
+                        <g class="char-body-idle">
+                            <!-- Legs -->
+                            <rect x="22" y="50" width="6" height="20" rx="3" fill="#1e293b" class="leg-left"/>
+                            <rect x="32" y="50" width="6" height="20" rx="3" fill="#1e293b" class="leg-right"/>
+                            <!-- Torso/Jacket -->
+                            <rect x="16" y="28" width="28" height="26" rx="6" fill="#334155"/>
+                            <path d="M 20 28 L 40 28 L 35 54 L 25 54 Z" fill="#0f172a"/>
+                            <circle cx="30" cy="40" r="4" fill="#38bdf8" class="animate-pulse"/>
+                            <!-- Arms -->
+                            <rect x="12" y="30" width="6" height="18" rx="3" fill="#475569" class="arm-left"/>
+                            <rect x="42" y="30" width="6" height="18" rx="3" fill="#475569" class="arm-right"/>
+                            <!-- Head/Helmet -->
+                            <circle cx="30" cy="18" r="14" fill="#cbd5e1"/>
+                            <!-- Visor -->
+                            <path d="M 18 18 A 12 12 0 0 1 42 18" fill="none" stroke="#14b8a6" stroke-width="6" stroke-linecap="round"/>
+                            <!-- Headphones/Earpieces -->
+                            <rect x="14" y="14" width="4" height="10" rx="2" fill="#14b8a6"/>
+                            <rect x="42" y="14" width="4" height="10" rx="2" fill="#14b8a6"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Scrubber Progress Bar -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl">
+                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner cursor-pointer" id="journey-scrubber-bg">
+                    <div id="journey-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-brand-500 w-0 transition-all duration-300 rounded-full"></div>
+                </div>
+                <!-- Mini nodes for scrubber -->
+                <div id="journey-scrubber-nodes" class="absolute top-1/2 -translate-y-1/2 left-0 w-full h-0 pointer-events-none"></div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Pass experience data to client-side script -->
+<style>
+    .stage-card {
+        transform: translate(-50%, -50%);
+    }
+    .stage-card[data-state="upcoming"] {
+        transform: translate(-50%, -50%) scale(0.9);
+        filter: saturate(0.2) opacity(0.8);
+    }
+    .stage-card[data-state="active"] {
+        transform: translate(-50%, -50%) scale(1.05);
+        filter: saturate(1) opacity(1);
+        z-index: 40;
+    }
+    .stage-card[data-state="completed"] {
+        transform: translate(-50%, -50%) scale(0.95);
+        filter: saturate(0.8) opacity(0.9);
+    }
+
+    .stage-card[data-state="active"] .stage-icon {
+        border-color: #38bdf8;
+        color: #38bdf8;
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+    .stage-card[data-state="completed"] .stage-icon {
+        border-color: #14b8a6;
+        color: #14b8a6;
+    }
+
+    .stage-card[data-state="active"] .stage-details {
+        background-color: rgba(15, 23, 42, 0.85);
+        border-color: rgba(56, 189, 248, 0.5);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+        height: 220px;
+        overflow-y: auto;
+    }
+    .stage-card[data-state="active"] .stage-period { color: #38bdf8; }
+    .stage-card[data-state="active"] .stage-company { color: #ffffff; }
+    .stage-card[data-state="active"] .stage-expanded-content { opacity: 1; }
+    .stage-card[data-state="completed"] .stage-checkmark { opacity: 1; }
+
+    @keyframes avatar-bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+    @keyframes avatar-walk {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(15deg); }
+        75% { transform: rotate(-15deg); }
+    }
+    .is-moving .char-body-idle {
+        animation: avatar-bob 0.4s ease-in-out infinite;
+    }
+    .is-moving .leg-left {
+        transform-origin: top center;
+        animation: avatar-walk 0.4s ease-in-out infinite;
+    }
+    .is-moving .leg-right {
+        transform-origin: top center;
+        animation: avatar-walk 0.4s ease-in-out infinite reverse;
+    }
+</style>
+
+<script is:inline define:vars={{ experienceData: experience }}>
+    window.careerExperienceData = experienceData;
+</script>
 
 <script is:inline>
-        // --- Dynamic Camera & Career Journey World Animation ---
-        let mapOverlay = document.getElementById('map-overlay');
-        const journeyWorld = document.getElementById('journey-world');
-        const journeyCharacter = document.getElementById('journey-character');
-        const journeySvgPath = document.getElementById('journey-svg-path');
-        const journeyProgressBar = document.getElementById('journey-progress-bar');
-        const yearBadge = document.getElementById('journey-year-badge');
-        const roleBadge = document.getElementById('journey-role-badge');
-        const toastContainer = document.getElementById('achievement-toast-container');
-        const playBtnText = document.getElementById('map-play-text');
-        const playBtnIcon = document.getElementById('map-play-icon');
+    document.addEventListener("DOMContentLoaded", () => {
+        const data = window.careerExperienceData || [];
+        const count = data.length;
 
-        const WORLD_WIDTH = 2800;
-        let isPlaying = false;
-        let progress = 0; // 0 to 1
-        let animationFrameId = null;
-        let triggeredAchievements = new Set();
+        const spacingX = 600;
+        const paddingX = 200;
 
-        let pathLength = 0;
-        if (journeySvgPath) {
-            pathLength = journeySvgPath.getTotalLength();
-            journeySvgPath.style.strokeDasharray = pathLength;
-            journeySvgPath.style.strokeDashoffset = pathLength;
+        const worldWidth = paddingX * 2 + (count - 1) * spacingX;
+        const world = document.getElementById('journey-world');
+        const svgCanvas = document.getElementById('journey-svg-canvas');
+        const bgPath = document.getElementById('journey-bg-path');
+        const bgShadow = document.getElementById('journey-bg-shadow');
+        const innerPath = document.getElementById('journey-inner-path');
+        const activePath = document.getElementById('journey-active-path');
+
+        if(world) world.style.width = `${Math.max(window.innerWidth, worldWidth)}px`;
+        if(svgCanvas) {
+            svgCanvas.setAttribute('width', Math.max(window.innerWidth, worldWidth));
+            svgCanvas.setAttribute('viewBox', `0 0 ${Math.max(window.innerWidth, worldWidth)} 600`);
         }
 
-        window.openCareerMap = openCareerMap;
-        window.closeCareerMap = closeCareerMap;
-        window.toggleMapPlay = toggleMapPlay;
-
-        document.getElementById('map-play-btn')?.addEventListener('click', toggleMapPlay);
-        document.getElementById('map-close-btn')?.addEventListener('click', closeCareerMap);
-
-        function openCareerMap() {
-            mapOverlay = document.getElementById('map-overlay');
-            if (!mapOverlay) return;
-            mapOverlay.style.display = 'flex';
-            setTimeout(() => {
-                if (mapOverlay) mapOverlay.classList.add('open', 'pointer-events-auto');
-                resetMapAnimation();
-                isPlaying = true;
-                updatePlayBtnUI();
-                animateJourney();
-            }, 50);
+        let pathD = "";
+        const points = [];
+        const verticalPositions = [400, 150, 450, 200];
+        for(let i=0; i<count; i++) {
+            const reversedIndex = count - 1 - i;
+            const cx = paddingX + (reversedIndex * spacingX);
+            const cy = verticalPositions[reversedIndex % verticalPositions.length];
+            points.push({x: cx, y: cy, origIndex: i});
         }
 
-        function closeCareerMap() {
-            isPlaying = false;
-            cancelAnimationFrame(animationFrameId);
-            if (mapOverlay) mapOverlay.classList.remove('open', 'pointer-events-auto');
-            setTimeout(() => {
-                if (mapOverlay) mapOverlay.style.display = 'none';
-            }, 800);
-        }
+        points.sort((a,b) => a.x - b.x);
 
-        function toggleMapPlay() {
-            isPlaying = !isPlaying;
-            updatePlayBtnUI();
-            if (isPlaying) animateJourney();
-        }
-
-        function updatePlayBtnUI() {
-            if (isPlaying) {
-                playBtnText.textContent = "Pause";
-                playBtnIcon.className = "ph-fill ph-pause";
-            } else {
-                playBtnText.textContent = "Play";
-                playBtnIcon.className = "ph-fill ph-play";
+        if(points.length > 0) {
+            pathD = `M ${points[0].x} ${points[0].y}`;
+            for(let i=1; i<points.length; i++) {
+                const prev = points[i-1];
+                const curr = points[i];
+                const controlX = (prev.x + curr.x) / 2;
+                pathD += ` C ${controlX} ${prev.y}, ${controlX} ${curr.y}, ${curr.x} ${curr.y}`;
             }
         }
 
-        function resetMapAnimation() {
-            progress = 0;
-            triggeredAchievements.clear();
-            if (toastContainer) toastContainer.innerHTML = '';
-            if (journeySvgPath) journeySvgPath.style.strokeDashoffset = pathLength;
-            updateWorldPosition(0);
+        if(bgPath) bgPath.setAttribute('d', pathD);
+        if(bgShadow) bgShadow.setAttribute('d', pathD);
+        if(innerPath) innerPath.setAttribute('d', pathD);
+        if(activePath) {
+            activePath.setAttribute('d', pathD);
+            const totalLength = activePath.getTotalLength();
+            activePath.style.strokeDasharray = totalLength;
+            activePath.style.strokeDashoffset = totalLength;
         }
 
-        function animateJourney() {
-            if (!isPlaying) return;
-
-            progress += 0.0012; // Speed of walking
-            if (progress > 1) {
-                progress = 1;
-                isPlaying = false;
-                updatePlayBtnUI();
-            }
-
-            updateWorldPosition(progress);
-
-            if (isPlaying) {
-                animationFrameId = requestAnimationFrame(animateJourney);
-            }
+        const avatar = document.getElementById('journey-avatar');
+        if (avatar) {
+            avatar.style.offsetPath = `path('${pathD}')`;
         }
 
-        function updateWorldPosition(p) {
-            if (!journeySvgPath || !journeyCharacter || !journeyWorld || !journeyProgressBar) {
-                return;
-            }
+        const cards = document.querySelectorAll('.stage-card');
+        cards.forEach(card => {
+            const idx = parseInt(card.getAttribute('data-index'));
+            const point = points.find(p => p.origIndex === idx);
+            if(point) {
+                card.style.left = `${point.x}px`;
+                card.style.top = `${point.y}px`;
+                card.style.opacity = '1';
 
-            // Draw path line up to current progress
-            const drawOffset = pathLength * (1 - p);
-            journeySvgPath.style.strokeDashoffset = drawOffset;
-
-            // Get point coordinates on SVG path
-            const point = journeySvgPath.getPointAtLength(p * pathLength);
-            const charX = point.x;
-            const charY = point.y;
-
-            // Position character sprite inside world
-            journeyCharacter.style.transform = `translate(${charX}px, ${charY}px)`;
-
-            // --- CAMERA TRACKING MECHANIC ---
-            // 1. Character walks to viewport center.
-            // 2. Once centered, the PATH/WORLD moves left while character stays centered!
-            // 3. When nearing the end node, path stops and character walks to destination.
-            const viewportWidth = window.innerWidth;
-            const halfScreen = viewportWidth / 2;
-            const maxCameraScroll = WORLD_WIDTH - viewportWidth;
-
-            let cameraX = 0;
-            if (charX <= halfScreen) {
-                cameraX = 0;
-            } else if (charX > halfScreen && charX < (WORLD_WIDTH - halfScreen)) {
-                cameraX = charX - halfScreen;
-            } else {
-                cameraX = maxCameraScroll;
-            }
-
-            // Move the world layer underneath
-            journeyWorld.style.transform = `translateX(-${cameraX}px)`;
-
-            // Update bottom scrubber progress bar
-            journeyProgressBar.style.width = `${p * 100}%`;
-
-            // Trigger Milestones & Badges
-            checkMilestones(charX, p);
-        }
-
-
-        // Prepare dynamic milestone logic based on DOM data attributes generated above
-        const stageCards = Array.from(document.querySelectorAll('.stage-card')).map(card => {
-            return {
-                x: parseInt(card.getAttribute('data-x')),
-                period: card.getAttribute('data-year'),
-                role: card.getAttribute('data-role'),
-                company: card.getAttribute('data-company')
-            };
-        }).sort((a, b) => a.x - b.x); // sort left to right
-
-        function checkMilestones(x) {
-            let activeStage = stageCards[0];
-            for (let i = 0; i < stageCards.length; i++) {
-                // If past this stage's x minus a buffer, it's the active one
-                if (x >= stageCards[i].x - 300) {
-                    activeStage = stageCards[i];
+                const detailCard = card.querySelector('.stage-details');
+                if (detailCard) {
+                    detailCard.style.position = 'absolute';
+                    if (point.y < 300) {
+                        detailCard.style.top = '70px';
+                        detailCard.style.bottom = 'auto';
+                    } else {
+                        detailCard.style.bottom = '70px';
+                        detailCard.style.top = 'auto';
+                    }
                 }
             }
+        });
 
-            if (activeStage) {
-                yearBadge.textContent = activeStage.period;
-                roleBadge.textContent = `${activeStage.company} (${activeStage.role})`;
-            }
+        // Auto-play Step-and-Hold Logic
+        let activeIndex = 0;
+        let isPlaying = false;
+        let animationFrame = null;
+        let holdTimeout = null;
+        let currentProgress = 0;
 
-            // Dynamic popups based on stages
-            stageCards.forEach((stage, index) => {
-                if (x >= stage.x - 100 && !triggeredAchievements.has(`role-${index}`)) {
-                    triggeredAchievements.add(`role-${index}`);
-                    showAchievement("🚀 Career Milestone", `Joined ${stage.company} as ${stage.role}`, "bg-brand-500/20 stroke-brand-500 text-brand-400");
+        const totalNodes = points.length;
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const MOVE_DURATION = prefersReducedMotion ? 0 : 3500;
+        const HOLD_DURATION = prefersReducedMotion ? 9999999 : 8000;
+
+        if (prefersReducedMotion) {
+            const playBtn = document.getElementById('journey-play-btn');
+            if (playBtn) playBtn.style.display = 'none';
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .stage-expanded-content { opacity: 1 !important; }
+                .stage-details { height: auto !important; background-color: rgba(15, 23, 42, 0.95) !important; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function updateMilestoneStates() {
+            cards.forEach(card => {
+                const idx = parseInt(card.getAttribute('data-index'));
+                const pointIndex = points.findIndex(p => p.origIndex === idx);
+
+                if (pointIndex < activeIndex) {
+                    card.setAttribute('data-state', 'completed');
+                } else if (pointIndex === activeIndex) {
+                    card.setAttribute('data-state', 'active');
+                } else {
+                    card.setAttribute('data-state', 'upcoming');
                 }
             });
         }
 
+        function animateToNode(targetIndex) {
+            const startProgress = currentProgress;
+            const targetProgress = targetIndex / (Math.max(1, totalNodes - 1));
+            const startTime = performance.now();
 
-        function showAchievement(title, detail, colorClasses) {
-            const toast = document.createElement('div');
-            toast.className = `achievement-toast p-3 rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-md shadow-2xl flex items-center gap-3 text-xs ${colorClasses}`;
-            toast.innerHTML = `
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg bg-white/10 flex-shrink-0">
-                    <i class="ph-fill ph-sparkle"></i>
-                </div>
-                <div>
-                    <div class="font-extrabold text-white">${title}</div>
-                    <div class="text-slate-300">${detail}</div>
-                </div>
-            `;
-            if (toastContainer) toastContainer.appendChild(toast);
+            cards.forEach(card => {
+                const idx = parseInt(card.getAttribute('data-index'));
+                const pointIndex = points.findIndex(p => p.origIndex === idx);
+                if (pointIndex < targetIndex) card.setAttribute('data-state', 'completed');
+                else card.setAttribute('data-state', 'upcoming');
+            });
 
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s ease';
-                setTimeout(() => toast.remove(), 500);
-            }, 3200);
+            if(avatar) avatar.classList.add('is-moving');
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                let t = elapsed / MOVE_DURATION;
+                if (t > 1) t = 1;
+
+                const easeInOut = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                currentProgress = startProgress + (targetProgress - startProgress) * easeInOut;
+
+                if(avatar) avatar.style.offsetDistance = `${currentProgress * 100}%`;
+
+                const progressBar = document.getElementById('journey-progress-bar');
+                if(progressBar) progressBar.style.width = `${currentProgress * 100}%`;
+
+                if (world) {
+                    const cx = paddingX + (currentProgress * (totalNodes - 1)) * spacingX;
+                    const viewportWidth = window.innerWidth;
+                    const halfScreen = viewportWidth / 2;
+                    const maxCameraScroll = Math.max(0, worldWidth - viewportWidth);
+                    let cameraX = 0;
+                    if (cx > halfScreen && cx < (worldWidth - halfScreen)) {
+                        cameraX = cx - halfScreen;
+                    } else if (cx >= (worldWidth - halfScreen)) {
+                        cameraX = maxCameraScroll;
+                    }
+                    world.style.transform = `translateX(-${cameraX}px)`;
+                }
+
+                if (t < 1) {
+                    animationFrame = requestAnimationFrame(step);
+                } else {
+                    activeIndex = targetIndex;
+                    if(avatar) avatar.classList.remove('is-moving');
+                    updateMilestoneStates();
+
+                    if (isPlaying) {
+                        if (activeIndex < totalNodes - 1) {
+                            holdTimeout = setTimeout(() => {
+                                animateToNode(activeIndex + 1);
+                            }, HOLD_DURATION);
+                        } else {
+                            isPlaying = false;
+                            updatePlayBtnUI();
+                        }
+                    }
+                }
+            }
+            animationFrame = requestAnimationFrame(step);
         }
 
+        window.journeyController = {
+            play: () => {
+                if (isPlaying || activeIndex >= totalNodes - 1) return;
+                isPlaying = true;
+                updatePlayBtnUI();
+                holdTimeout = setTimeout(() => {
+                    animateToNode(activeIndex + 1);
+                }, HOLD_DURATION);
+            },
+            pause: () => {
+                isPlaying = false;
+                clearTimeout(holdTimeout);
+                cancelAnimationFrame(animationFrame);
+                updatePlayBtnUI();
+            },
+            goTo: (index) => {
+                if (index < 0 || index >= totalNodes) return;
+                clearTimeout(holdTimeout);
+                cancelAnimationFrame(animationFrame);
+                updatePlayBtnUI();
+                animateToNode(index);
+            },
+            togglePlay: () => {
+                if (isPlaying) window.journeyController.pause();
+                else window.journeyController.play();
+            },
+            next: () => {
+                window.journeyController.goTo(activeIndex + 1);
+            },
+            prev: () => {
+                window.journeyController.goTo(activeIndex - 1);
+            }
+        };
 
+        function updatePlayBtnUI() {
+            const btnText = document.getElementById('journey-play-text');
+            const btnIcon = document.getElementById('journey-play-icon');
+            if (btnText && btnIcon) {
+                if (isPlaying) {
+                    btnText.textContent = "Pause";
+                    btnIcon.className = "ph-fill ph-pause";
+                } else {
+                    btnText.textContent = "Auto Play";
+                    btnIcon.className = "ph-fill ph-play";
+                }
+            }
+        }
+
+        // Initial setup only (no auto-play until toggle)
+        setTimeout(() => {
+            activeIndex = 0;
+            currentProgress = 0;
+            updateMilestoneStates();
+            if(avatar) avatar.style.offsetDistance = `0%`;
+            const progressBar = document.getElementById('journey-progress-bar');
+            if(progressBar) progressBar.style.width = `0%`;
+        }, 100);
+
+        // Attach manual control listeners
+        const playBtn = document.getElementById('journey-play-btn');
+        if (playBtn) playBtn.addEventListener('click', () => window.journeyController.togglePlay());
+
+        const prevBtn = document.getElementById('journey-prev-btn');
+        if (prevBtn) prevBtn.addEventListener('click', () => window.journeyController.prev());
+
+        const nextBtn = document.getElementById('journey-next-btn');
+        if (nextBtn) nextBtn.addEventListener('click', () => window.journeyController.next());
+
+        // Attach click listeners to cards
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const idx = parseInt(card.getAttribute('data-index'));
+                const pointIndex = points.findIndex(p => p.origIndex === idx);
+                if (pointIndex !== -1 && pointIndex !== activeIndex) {
+                    window.journeyController.goTo(pointIndex);
+                }
+            });
+        });
+
+        // Scrubber click interaction
+        const scrubberBg = document.getElementById('journey-scrubber-bg');
+        if (scrubberBg) {
+            scrubberBg.addEventListener('click', (e) => {
+                const rect = scrubberBg.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const percentage = clickX / rect.width;
+                let closestIndex = 0;
+                let minDiff = Infinity;
+                for (let i = 0; i < totalNodes; i++) {
+                    const nodePercentage = i / (Math.max(1, totalNodes - 1));
+                    const diff = Math.abs(nodePercentage - percentage);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = i;
+                    }
+                }
+                window.journeyController.goTo(closestIndex);
+            });
+        }
+
+        // View Timeline toggle
+        const toggleBtn = document.getElementById('toggle-timeline-btn');
+        const desktopView = document.getElementById('desktop-journey-container');
+        const mobileView = document.getElementById('mobile-timeline-wrapper');
+        let journeyStarted = false;
+
+        if (toggleBtn && desktopView && mobileView) {
+            toggleBtn.addEventListener('click', () => {
+                const isTimeline = !desktopView.classList.contains('hidden');
+                if (isTimeline) {
+                    // Switch to Timeline
+                    desktopView.classList.add('hidden');
+                    mobileView.classList.remove('hidden');
+                    toggleBtn.innerHTML = '<i class="ph-fill ph-play-circle text-lg"></i> View Interactive Journey';
+                    toggleBtn.className = "px-5 py-2.5 bg-gradient-to-r from-brand-500 to-cyan-500 text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-brand-500/30 transition-all hover:-translate-y-0.5 flex items-center gap-2";
+                    window.journeyController.pause();
+                } else {
+                    // Switch to Interactive Journey
+                    desktopView.classList.remove('hidden');
+                    mobileView.classList.add('hidden');
+                    toggleBtn.innerHTML = '<i class="ph-bold ph-list-dashes text-lg"></i> View Timeline';
+                    toggleBtn.className = "px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-2";
+
+                    if (!journeyStarted) {
+                        journeyStarted = true;
+                        // reset and play instantly
+                        setTimeout(() => {
+                            activeIndex = 0;
+                            currentProgress = 0;
+                            updateMilestoneStates();
+                            if(avatar) avatar.style.offsetDistance = `0%`;
+                            const progressBar = document.getElementById('journey-progress-bar');
+                            if(progressBar) progressBar.style.width = `0%`;
+                            window.journeyController.play();
+                        }, 100);
+                    }
+                }
+            });
+        }
+
+        // IntersectionObserver to pause auto-play when off-screen
+        const section = document.getElementById('desktop-journey-container');
+        if (section) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting && isPlaying) {
+                        window.journeyController.pause();
+                    }
+                });
+            }, { threshold: 0.1 });
+            observer.observe(section);
+        }
+
+    });
 </script>

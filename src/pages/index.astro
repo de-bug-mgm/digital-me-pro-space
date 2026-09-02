@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
 import Skills from '../components/Skills.astro';
-import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
 import CareerMap from '../components/CareerMap.astro';
 import ChatWidget from '../components/ChatWidget.astro';
@@ -23,7 +22,7 @@ if (!data) throw new Error('Could not load resume data');
 >
   <Navigation />
 
-  <main class="container mx-auto px-6 md:px-12 max-w-7xl pt-32 pb-24 relative">
+  <main class="container mx-auto px-6 md:px-12 max-w-screen-2xl pt-32 pb-24 relative">
 
     <div id="page-home" class="page active">
         <Hero
@@ -36,13 +35,11 @@ if (!data) throw new Error('Could not load resume data');
         <Skills skills={data.skills} />
     </div>
 
-    <Experience experience={data.experience} />
+    <CareerMap experience={data.experience} />
 
     <Projects projects={data.projects} />
 
   </main>
-
-  <CareerMap experience={data.experience} />
 
   <ChatWidget />
 </Layout>
