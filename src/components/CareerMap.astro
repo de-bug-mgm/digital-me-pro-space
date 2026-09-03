@@ -137,27 +137,9 @@ const { experience } = Astro.props;
 
                 <!-- Dynamic Character Sprite -->
                 <div id="journey-avatar" class="absolute top-0 left-0 w-16 h-20 transition-all duration-75 z-30 flex items-center justify-center pointer-events-none" style="offset-path: path('M0,0'); offset-distance: 0%; offset-rotate: auto 90deg; margin-top: -30px; margin-left: -10px;">
-                    <svg viewBox="0 0 60 80" class="w-full h-full drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] avatar-svg">
-                        <g class="char-body-idle">
-                            <!-- Legs -->
-                            <rect x="22" y="50" width="6" height="20" rx="3" fill="#1e293b" class="leg-left"/>
-                            <rect x="32" y="50" width="6" height="20" rx="3" fill="#1e293b" class="leg-right"/>
-                            <!-- Torso/Jacket -->
-                            <rect x="16" y="28" width="28" height="26" rx="6" fill="#334155"/>
-                            <path d="M 20 28 L 40 28 L 35 54 L 25 54 Z" fill="#0f172a"/>
-                            <circle cx="30" cy="40" r="4" fill="#38bdf8" class="animate-pulse"/>
-                            <!-- Arms -->
-                            <rect x="12" y="30" width="6" height="18" rx="3" fill="#475569" class="arm-left"/>
-                            <rect x="42" y="30" width="6" height="18" rx="3" fill="#475569" class="arm-right"/>
-                            <!-- Head/Helmet -->
-                            <circle cx="30" cy="18" r="14" fill="#cbd5e1"/>
-                            <!-- Visor -->
-                            <path d="M 18 18 A 12 12 0 0 1 42 18" fill="none" stroke="#14b8a6" stroke-width="6" stroke-linecap="round"/>
-                            <!-- Headphones/Earpieces -->
-                            <rect x="14" y="14" width="4" height="10" rx="2" fill="#14b8a6"/>
-                            <rect x="42" y="14" width="4" height="10" rx="2" fill="#14b8a6"/>
-                        </g>
-                    </svg>
+                    <div class="journey-avatar-animation w-full h-full flex items-center justify-center">
+                        <img src="/resource/mini-character.png" alt="Career journey character" class="w-full h-full object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
+                    </div>
                 </div>
             </div>
 
@@ -214,25 +196,25 @@ const { experience } = Astro.props;
     .stage-card[data-state="active"] .stage-expanded-content { opacity: 1; }
     .stage-card[data-state="completed"] .stage-checkmark { opacity: 1; }
 
-    @keyframes avatar-bob {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-4px); }
+    @keyframes avatar-idle {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-2px) scale(1.01); }
     }
-    @keyframes avatar-walk {
-        0%, 100% { transform: rotate(0deg); }
-        25% { transform: rotate(15deg); }
-        75% { transform: rotate(-15deg); }
+    @keyframes avatar-travel {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-3px) scale(1.015); }
     }
-    .is-moving .char-body-idle {
-        animation: avatar-bob 0.4s ease-in-out infinite;
+    .journey-avatar-animation {
+        animation: avatar-idle 2.8s ease-in-out infinite;
     }
-    .is-moving .leg-left {
-        transform-origin: top center;
-        animation: avatar-walk 0.4s ease-in-out infinite;
+    .is-moving .journey-avatar-animation {
+        animation: avatar-travel 0.55s ease-in-out infinite;
     }
-    .is-moving .leg-right {
-        transform-origin: top center;
-        animation: avatar-walk 0.4s ease-in-out infinite reverse;
+    @media (prefers-reduced-motion: reduce) {
+        .journey-avatar-animation,
+        .is-moving .journey-avatar-animation {
+            animation: none;
+        }
     }
 </style>
 
@@ -372,6 +354,7 @@ const { experience } = Astro.props;
         function initializeJourney() {
             clearTimeout(holdTimeout);
             cancelAnimationFrame(animationFrame);
+            if (avatar) avatar.classList.remove('is-moving');
             activeIndex = 0;
             currentProgress = 0;
             journeyInitialized = true;
@@ -448,6 +431,7 @@ const { experience } = Astro.props;
             pause: () => {
                 clearTimeout(holdTimeout);
                 cancelAnimationFrame(animationFrame);
+                if (avatar) avatar.classList.remove('is-moving');
                 if (playbackState !== 'completed') setPlaybackState('paused');
             },
             goTo: (index) => {
