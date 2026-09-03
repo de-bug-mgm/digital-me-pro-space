@@ -84,10 +84,15 @@ const { experience } = Astro.props;
                 <!-- SVG Pathway Line -->
                 <svg id="journey-svg-canvas" width="2800" height="600" viewBox="0 0 2800 600" class="absolute inset-0 w-full h-full pointer-events-none">
                     <defs>
-                        <linearGradient id="path-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <linearGradient id="route-body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#164e63" />
+                            <stop offset="48%" stop-color="#155e75" />
+                            <stop offset="100%" stop-color="#115e59" />
+                        </linearGradient>
+                        <linearGradient id="route-lane-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                             <stop offset="0%" stop-color="#38bdf8" />
-                            <stop offset="50%" stop-color="#14b8a6" />
-                            <stop offset="100%" stop-color="#a855f7" />
+                            <stop offset="55%" stop-color="#2dd4bf" />
+                            <stop offset="100%" stop-color="#5eead4" />
                         </linearGradient>
                         <pattern id="grid-pattern" width="60" height="60" patternUnits="userSpaceOnUse">
                             <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
@@ -95,17 +100,13 @@ const { experience } = Astro.props;
                     </defs>
                     <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-                    <!-- Base Track Shadow -->
-                    <path id="journey-bg-shadow" fill="none" stroke="rgba(0,0,0,0.6)" stroke-width="24" stroke-linecap="round" transform="translate(0, 8)"/>
-
-                    <!-- Background Guide Track -->
-                    <path id="journey-bg-path" fill="none" stroke="rgba(30, 41, 59, 0.8)" stroke-width="20" stroke-linecap="round"/>
-
-                    <!-- Inner Lane Guide -->
-                    <path id="journey-inner-path" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6"/>
-
-                    <!-- Active Path -->
-                    <path id="journey-active-path" fill="none" stroke="url(#path-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0" stroke-dashoffset="0" style="filter: drop-shadow(0 0 8px rgba(56,189,248,0.5));"/>
+                    <!-- Layered professional route: depth, body, travel lane, and restrained detail. -->
+                    <path id="journey-bg-shadow" fill="none" stroke="rgba(2, 6, 23, 0.8)" stroke-width="58" stroke-linecap="round" transform="translate(0, 10)"/>
+                    <path id="journey-bg-path" fill="none" stroke="rgba(8, 47, 73, 0.95)" stroke-width="52" stroke-linecap="round"/>
+                    <path id="journey-route-body" fill="none" stroke="url(#route-body-grad)" stroke-width="42" stroke-linecap="round"/>
+                    <path id="journey-route-lane" fill="none" stroke="url(#route-lane-grad)" stroke-width="22" stroke-linecap="round"/>
+                    <path id="journey-inner-path" fill="none" stroke="rgba(224, 242, 254, 0.32)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 14"/>
+                    <path id="journey-active-path" fill="none" stroke="rgba(240, 253, 250, 0.78)" stroke-width="3" stroke-linecap="round" stroke-dasharray="0" stroke-dashoffset="0"/>
                 </svg>
 
                 <!-- Container for Milestone Cards -->
@@ -136,7 +137,7 @@ const { experience } = Astro.props;
                 </div>
 
                 <!-- Dynamic Character Sprite -->
-                <div id="journey-avatar" class="absolute top-0 left-0 w-16 h-20 transition-all duration-75 z-30 flex items-center justify-center pointer-events-none" style="offset-path: path('M0,0'); offset-distance: 0%; offset-rotate: auto 90deg; margin-top: -30px; margin-left: -10px;">
+                <div id="journey-avatar" class="absolute top-0 left-0 w-16 h-20 transition-all duration-75 z-30 flex items-center justify-center pointer-events-none" style="offset-path: path('M0,0'); offset-distance: 0%; offset-rotate: auto 0deg; margin-top: -30px; margin-left: -10px;">
                     <div class="journey-avatar-animation w-full h-full flex items-center justify-center">
                         <img src="/resource/mini-character.png" alt="Career journey character" class="w-full h-full object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]" />
                     </div>
@@ -227,82 +228,105 @@ const { experience } = Astro.props;
         const data = window.careerExperienceData || [];
         const count = data.length;
 
-        const spacingX = 600;
-        const paddingX = 200;
-
-        const worldWidth = paddingX * 2 + (count - 1) * spacingX;
         const world = document.getElementById('journey-world');
         const svgCanvas = document.getElementById('journey-svg-canvas');
         const bgPath = document.getElementById('journey-bg-path');
         const bgShadow = document.getElementById('journey-bg-shadow');
+        const routeBody = document.getElementById('journey-route-body');
+        const routeLane = document.getElementById('journey-route-lane');
         const innerPath = document.getElementById('journey-inner-path');
         const activePath = document.getElementById('journey-active-path');
-
-        if(world) world.style.width = `${Math.max(window.innerWidth, worldWidth)}px`;
-        if(svgCanvas) {
-            svgCanvas.setAttribute('width', Math.max(window.innerWidth, worldWidth));
-            svgCanvas.setAttribute('viewBox', `0 0 ${Math.max(window.innerWidth, worldWidth)} 600`);
-        }
-
-        let pathD = "";
-        const points = [];
-        const verticalPositions = [400, 150, 450, 200];
-        for(let i=0; i<count; i++) {
-            const reversedIndex = count - 1 - i;
-            const cx = paddingX + (reversedIndex * spacingX);
-            const cy = verticalPositions[reversedIndex % verticalPositions.length];
-            points.push({x: cx, y: cy, origIndex: i});
-        }
-
-        points.sort((a,b) => a.x - b.x);
-
-        if(points.length > 0) {
-            pathD = `M ${points[0].x} ${points[0].y}`;
-            for(let i=1; i<points.length; i++) {
-                const prev = points[i-1];
-                const curr = points[i];
-                const controlX = (prev.x + curr.x) / 2;
-                pathD += ` C ${controlX} ${prev.y}, ${controlX} ${curr.y}, ${curr.x} ${curr.y}`;
-            }
-        }
-
-        if(bgPath) bgPath.setAttribute('d', pathD);
-        if(bgShadow) bgShadow.setAttribute('d', pathD);
-        if(innerPath) innerPath.setAttribute('d', pathD);
-        if(activePath) {
-            activePath.setAttribute('d', pathD);
-            const totalLength = activePath.getTotalLength();
-            activePath.style.strokeDasharray = totalLength;
-            activePath.style.strokeDashoffset = totalLength;
-        }
-
         const avatar = document.getElementById('journey-avatar');
-        if (avatar) {
-            avatar.style.offsetPath = `path('${pathD}')`;
+        const cards = document.querySelectorAll('.stage-card');
+
+        let points = [];
+        let pathD = '';
+        let worldWidth = 0;
+        let routeLength = 0;
+        let milestoneProgress = [];
+
+        function generateCareerLayout(viewportWidth, viewportHeight) {
+            const safeCount = Math.max(1, count);
+            const horizontalPadding = Math.min(260, Math.max(120, viewportWidth * 0.16));
+            const segmentSpacing = Math.min(520, Math.max(300, viewportWidth * (safeCount > 6 ? 0.42 : 0.58)));
+            const routeHeight = 600;
+            const centerY = routeHeight / 2;
+            const amplitude = Math.min(125, Math.max(78, viewportHeight * 0.22));
+            const generatedPoints = [];
+
+            for (let index = 0; index < safeCount; index += 1) {
+                const progress = safeCount === 1 ? 0 : index / (safeCount - 1);
+                const x = horizontalPadding + index * segmentSpacing;
+                const y = centerY + amplitude * (
+                    Math.sin(progress * Math.PI * 1.35 - 0.35) * 0.72 +
+                    Math.sin(progress * Math.PI * 2.25 + 0.8) * 0.2
+                );
+                generatedPoints.push({ x, y, origIndex: index });
+            }
+
+            let generatedPath = safeCount ? `M ${generatedPoints[0].x} ${generatedPoints[0].y}` : '';
+            for (let index = 1; index < generatedPoints.length; index += 1) {
+                const previous = generatedPoints[index - 1];
+                const current = generatedPoints[index];
+                const handleX = (current.x - previous.x) * 0.44;
+                const bend = Math.sin(index * 1.9 + 0.4) * amplitude * 0.24;
+                generatedPath += ` C ${previous.x + handleX} ${previous.y + bend}, ${current.x - handleX} ${current.y - bend}, ${current.x} ${current.y}`;
+            }
+
+            return {
+                points: generatedPoints,
+                pathD: generatedPath,
+                worldWidth: Math.max(viewportWidth, horizontalPadding * 2 + (safeCount - 1) * segmentSpacing + horizontalPadding)
+            };
         }
 
-        const cards = document.querySelectorAll('.stage-card');
-        cards.forEach(card => {
-            const idx = parseInt(card.getAttribute('data-index'));
-            const point = points.find(p => p.origIndex === idx);
-            if(point) {
+        function applyCareerLayout(viewportWidth, viewportHeight) {
+            const layout = generateCareerLayout(viewportWidth, viewportHeight);
+            points = layout.points;
+            pathD = layout.pathD;
+            worldWidth = layout.worldWidth;
+
+            if (world) world.style.width = `${worldWidth}px`;
+            if (svgCanvas) {
+                svgCanvas.setAttribute('width', worldWidth);
+                svgCanvas.setAttribute('viewBox', `0 0 ${worldWidth} 600`);
+            }
+
+            [bgPath, bgShadow, routeBody, routeLane, innerPath, activePath].forEach(route => {
+                if (route) route.setAttribute('d', pathD);
+            });
+
+            if (activePath) {
+                routeLength = activePath.getTotalLength();
+                activePath.style.strokeDasharray = routeLength;
+                activePath.style.strokeDashoffset = routeLength * (1 - currentProgress);
+                milestoneProgress = points.map(point => {
+                    let lower = 0;
+                    let upper = routeLength;
+                    for (let iteration = 0; iteration < 18; iteration += 1) {
+                        const middle = (lower + upper) / 2;
+                        if (activePath.getPointAtLength(middle).x < point.x) lower = middle;
+                        else upper = middle;
+                    }
+                    return routeLength ? ((lower + upper) / 2) / routeLength : 0;
+                });
+            }
+
+            if (avatar) avatar.style.offsetPath = `path('${pathD}')`;
+            cards.forEach(card => {
+                const point = points[parseInt(card.getAttribute('data-index'))];
+                if (!point) return;
                 card.style.left = `${point.x}px`;
                 card.style.top = `${point.y}px`;
                 card.style.opacity = '1';
-
                 const detailCard = card.querySelector('.stage-details');
                 if (detailCard) {
                     detailCard.style.position = 'absolute';
-                    if (point.y < 300) {
-                        detailCard.style.top = '70px';
-                        detailCard.style.bottom = 'auto';
-                    } else {
-                        detailCard.style.bottom = '70px';
-                        detailCard.style.top = 'auto';
-                    }
+                    detailCard.style.top = point.y < 300 ? '70px' : 'auto';
+                    detailCard.style.bottom = point.y < 300 ? 'auto' : '70px';
                 }
-            }
-        });
+            });
+        }
 
         // Auto-play Step-and-Hold Logic
         let viewMode = 'timeline';
@@ -312,6 +336,8 @@ const { experience } = Astro.props;
         let animationFrame = null;
         let holdTimeout = null;
         let currentProgress = 0;
+
+        applyCareerLayout(window.innerWidth, 600);
 
         const totalNodes = points.length;
 
@@ -367,7 +393,7 @@ const { experience } = Astro.props;
 
         function animateToNode(targetIndex) {
             const startProgress = currentProgress;
-            const targetProgress = targetIndex / (Math.max(1, totalNodes - 1));
+            const targetProgress = milestoneProgress[targetIndex] ?? 0;
             const startTime = performance.now();
 
             if(avatar) avatar.classList.add('is-moving');
@@ -381,12 +407,14 @@ const { experience } = Astro.props;
                 currentProgress = startProgress + (targetProgress - startProgress) * easeInOut;
 
                 if(avatar) avatar.style.offsetDistance = `${currentProgress * 100}%`;
+                if(activePath) activePath.style.strokeDashoffset = `${routeLength * (1 - currentProgress)}`;
 
                 const progressBar = document.getElementById('journey-progress-bar');
                 if(progressBar) progressBar.style.width = `${currentProgress * 100}%`;
 
                 if (world) {
-                    const cx = paddingX + (currentProgress * (totalNodes - 1)) * spacingX;
+                    const routePoint = activePath?.getPointAtLength(currentProgress * routeLength);
+                    const cx = routePoint ? routePoint.x : 0;
                     const viewportWidth = window.innerWidth;
                     const halfScreen = viewportWidth / 2;
                     const maxCameraScroll = Math.max(0, worldWidth - viewportWidth);
@@ -498,7 +526,7 @@ const { experience } = Astro.props;
                 let closestIndex = 0;
                 let minDiff = Infinity;
                 for (let i = 0; i < totalNodes; i++) {
-                    const nodePercentage = i / (Math.max(1, totalNodes - 1));
+                    const nodePercentage = milestoneProgress[i] ?? 0;
                     const diff = Math.abs(nodePercentage - percentage);
                     if (diff < minDiff) {
                         minDiff = diff;
@@ -508,6 +536,16 @@ const { experience } = Astro.props;
                 window.journeyController.goTo(closestIndex);
             });
         }
+
+        const resizeObserver = new ResizeObserver(entries => {
+            const viewport = entries[0]?.contentRect;
+            if (!viewport) return;
+            applyCareerLayout(viewport.width, viewport.height);
+            if (avatar) avatar.style.offsetDistance = `${currentProgress * 100}%`;
+            updateMilestoneStates();
+        });
+        const journeyViewport = document.getElementById('journey-viewport');
+        if (journeyViewport) resizeObserver.observe(journeyViewport);
 
         // View Timeline toggle
         const toggleBtn = document.getElementById('toggle-timeline-btn');
